@@ -1,18 +1,12 @@
 import React, { useState } from "react";
-import {
-  TouchableOpacity,
-  StyleSheet,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { TouchableOpacity, StyleSheet, View } from "react-native";
 import { RouteProp, CompositeNavigationProp } from "@react-navigation/native";
 import {
   StackNavigationProp,
   createStackNavigator,
 } from "@react-navigation/stack";
 import { RootStackParamList } from "../App";
-import { SafeAreaView } from "../design-system/SafeAreaView";
+import { ScreenBackground } from "../components/ScreenBackground";
 import { NavigationHeader } from "../components/NavigationHeader";
 import { useSelector, useDispatch } from "react-redux";
 import { ContentBlock } from "../design-system/ContentBlock";
@@ -35,11 +29,13 @@ import {
   saveTempRoll,
 } from "../store/rolls";
 import { cameraBagSelectors, Camera } from "../store/camera-bag";
+import { KeyboardAvoidingView } from "../components/KeyboardAvoidingView";
+import { ScrollViewPadding } from "../components/ScrollViewPadding";
 
 export type AddRollStackParamList = {
-  ChooseFilmStock: undefined;
-  ChooseCamera: undefined;
-  ExtraInfo: undefined;
+  AddRollChooseFilmStock: undefined;
+  AddRollChooseCamera: undefined;
+  AddRollExtraInfo: undefined;
 };
 
 const Stack = createStackNavigator<AddRollStackParamList>();
@@ -48,7 +44,7 @@ type AddRollScreenRouteProp = RouteProp<RootStackParamList, "AddRoll">;
 
 type ChooseFilmStockNavigationProp = CompositeNavigationProp<
   StackNavigationProp<RootStackParamList, "AddRoll">,
-  StackNavigationProp<AddRollStackParamList, "ChooseFilmStock">
+  StackNavigationProp<AddRollStackParamList, "AddRollChooseFilmStock">
 >;
 
 type ChooseFilmStockScreenProps = {
@@ -70,7 +66,7 @@ function FilmStockItem({ item, navigation }: FilmStockItemProps) {
       style={styles.listItem}
       onPress={() => {
         dispatch(setTempRollFilmStock(item.id));
-        navigation.navigate("ChooseCamera");
+        navigation.navigate("AddRollChooseCamera");
       }}>
       <View style={styles.listItemContent}>
         <Headline>{item.name}</Headline>
@@ -97,10 +93,8 @@ export function ChooseFilmStockScreen({
   );
 
   return (
-    <SafeAreaView>
-      <KeyboardAvoidingView
-        behavior={Platform.OS == "ios" ? "padding" : "height"}
-        style={styles.container}>
+    <ScreenBackground>
+      <KeyboardAvoidingView>
         <ContentBlock>
           <TextInput
             placeholder="Filter"
@@ -108,8 +102,8 @@ export function ChooseFilmStockScreen({
             onChange={(value) => setSearchTerm(value)}
           />
         </ContentBlock>
-        <ScrollView style={{ borderRadius: theme.misc.borderRadius }}>
-          <ContentBlock>
+        <ContentBlock style={{ flex: 1, paddingBottom: 0 }}>
+          <ScrollView style={{ borderRadius: theme.misc.borderRadius }}>
             <List
               items={filteredList}
               keyExtractor={(i) => i.id}
@@ -117,16 +111,17 @@ export function ChooseFilmStockScreen({
                 <FilmStockItem item={item} navigation={navigation} />
               )}
             />
-          </ContentBlock>
-        </ScrollView>
+            <ScrollViewPadding />
+          </ScrollView>
+        </ContentBlock>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ScreenBackground>
   );
 }
 
 type ChooseCameraNavigationProp = CompositeNavigationProp<
   StackNavigationProp<RootStackParamList, "AddRoll">,
-  StackNavigationProp<AddRollStackParamList, "ChooseCamera">
+  StackNavigationProp<AddRollStackParamList, "AddRollChooseCamera">
 >;
 
 type ChooseCameraScreenProps = {
@@ -148,7 +143,7 @@ function CameraItem({ item, navigation }: CameraItemProps) {
       style={styles.listItem}
       onPress={() => {
         dispatch(setTempRollCamera(item.id));
-        navigation.navigate("ExtraInfo");
+        navigation.navigate("AddRollExtraInfo");
       }}>
       <View style={styles.listItemContent}>
         <Headline>{item.name}</Headline>
@@ -164,7 +159,7 @@ export function ChooseCameraScreen({ navigation }: ChooseCameraScreenProps) {
   const cameras = useSelector(cameraBagSelectors.camerasList);
 
   return (
-    <SafeAreaView>
+    <ScreenBackground>
       <ScrollView style={{ borderRadius: theme.misc.borderRadius }}>
         <ContentBlock>
           <List
@@ -176,13 +171,13 @@ export function ChooseCameraScreen({ navigation }: ChooseCameraScreenProps) {
           />
         </ContentBlock>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenBackground>
   );
 }
 
 type ExtraInfoNavigationProp = CompositeNavigationProp<
   StackNavigationProp<RootStackParamList, "AddRoll">,
-  StackNavigationProp<AddRollStackParamList, "ExtraInfo">
+  StackNavigationProp<AddRollStackParamList, "AddRollExtraInfo">
 >;
 
 type ExtraInfoScreenProps = {
@@ -202,10 +197,8 @@ export function ExtraInfoScreen({ navigation }: ExtraInfoScreenProps) {
   const [notes, setNotes] = useState("");
 
   return (
-    <SafeAreaView>
-      <KeyboardAvoidingView
-        behavior={Platform.OS == "ios" ? "padding" : "height"}
-        style={styles.container}>
+    <ScreenBackground>
+      <KeyboardAvoidingView>
         <ScrollView style={{ borderRadius: theme.misc.borderRadius }}>
           <ContentBlock>
             <TextInput
@@ -236,7 +229,7 @@ export function ExtraInfoScreen({ navigation }: ExtraInfoScreenProps) {
           </ContentBlock>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ScreenBackground>
   );
 }
 
@@ -244,7 +237,7 @@ export function AddRollScreen() {
   return (
     <>
       <Stack.Navigator
-        initialRouteName="ChooseFilmStock"
+        initialRouteName="AddRollChooseFilmStock"
         screenOptions={({ route, navigation }) => ({
           header: (props) => (
             <NavigationHeader
@@ -258,21 +251,21 @@ export function AddRollScreen() {
           ),
         })}>
         <Stack.Screen
-          name="ChooseFilmStock"
+          name="AddRollChooseFilmStock"
           component={ChooseFilmStockScreen}
           options={{
             title: "Choose film",
           }}
         />
         <Stack.Screen
-          name="ChooseCamera"
+          name="AddRollChooseCamera"
           component={ChooseCameraScreen}
           options={{
             title: "Choose camera",
           }}
         />
         <Stack.Screen
-          name="ExtraInfo"
+          name="AddRollExtraInfo"
           component={ExtraInfoScreen}
           options={{
             title: "Extra info",

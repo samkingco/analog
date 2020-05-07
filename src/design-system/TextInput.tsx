@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -8,7 +8,6 @@ import {
   StyleProp,
   TextInputProps,
 } from "react-native";
-import { Headline } from "./Headline";
 import { theme } from "../theme";
 import { Subhead } from "./Subhead";
 

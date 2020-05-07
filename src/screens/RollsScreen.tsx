@@ -6,7 +6,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { format } from "date-fns";
 import { RootStackParamList } from "../App";
 import { rollSelectors, ComputedRoll } from "../store/rolls";
-import { SafeAreaView } from "../design-system/SafeAreaView";
+import { SafeAreaView } from "../components/SafeAreaView";
 import { Headline } from "../design-system/Headline";
 import { ContentBlock } from "../design-system/ContentBlock";
 import { SectionTitle } from "../design-system/SectionTitle";
@@ -16,6 +16,8 @@ import { Subhead } from "../design-system/Subhead";
 import { ChevronRightIcon } from "../design-system/icons/ChevronRightIcon";
 import { Icon } from "../design-system/Icon";
 import { Button } from "../design-system/Button";
+import { ScrollViewPadding } from "../components/ScrollViewPadding";
+import { ScreenBackground } from "../components/ScreenBackground";
 
 type RollsScreenRouteProp = RouteProp<RootStackParamList, "Rolls">;
 type RollsScreenNavigationProp = StackNavigationProp<
@@ -86,7 +88,7 @@ export function RollsScreen({ navigation }: Props) {
   );
 
   return (
-    <SafeAreaView>
+    <ScreenBackground>
       <ScrollView>
         <ContentBlock>
           <SectionTitle>Shooting</SectionTitle>
@@ -107,7 +109,7 @@ export function RollsScreen({ navigation }: Props) {
           <Button
             variant="secondary"
             onPress={() => {
-              navigation.navigate("AddRoll");
+              navigation.navigate("AddRollChooseFilmStock");
             }}>
             Start a new roll
           </Button>
@@ -146,8 +148,9 @@ export function RollsScreen({ navigation }: Props) {
             />
           </ContentBlock>
         ) : null}
+        <ScrollViewPadding />
       </ScrollView>
-    </SafeAreaView>
+    </ScreenBackground>
   );
 }
 

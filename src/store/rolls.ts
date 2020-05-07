@@ -181,6 +181,32 @@ export const { actions, reducer } = createSlice({
     deleteRoll: (state, action: PayloadAction<{ rollId: string }>) => {
       delete state.rolls[action.payload.rollId];
     },
+    addFrameToRoll: (
+      state,
+      action: PayloadAction<{
+        rollId: string;
+        lensId: string;
+        focalLength: number;
+        aperture: number;
+        shutterWhole: number;
+        shutterFraction: number;
+        notes?: string;
+      }>,
+    ) => {
+      const roll = state.rolls[action.payload.rollId];
+      const frameId = uuid("frame");
+      roll.frames[frameId] = {
+        id: frameId,
+        lensId: action.payload.lensId,
+        captureTime: Date.now(),
+        focalLength: action.payload.focalLength,
+        aperture: action.payload.aperture,
+        shutterWhole: action.payload.shutterWhole,
+        shutterFraction: action.payload.shutterFraction,
+        notes: action.payload.notes,
+      };
+      roll.framesOrder = [...roll.framesOrder, frameId];
+    },
   },
 });
 
@@ -223,6 +249,22 @@ export function saveTempRoll() {
 export function deleteRoll(rollId: string) {
   return function (dispatch: Dispatch) {
     dispatch(actions.deleteRoll({ rollId }));
+  };
+}
+
+export function addFrameToRoll(
+  frame: {
+    lensId: string;
+    focalLength: number;
+    aperture: number;
+    shutterWhole: number;
+    shutterFraction: number;
+    notes?: string;
+  },
+  rollId: string,
+) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.addFrameToRoll({ ...frame, rollId }));
   };
 }
 

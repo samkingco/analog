@@ -6,7 +6,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { format } from "date-fns";
 import { RootStackParamList } from "../App";
 import { rollSelectors, Frame, deleteRoll } from "../store/rolls";
-import { SafeAreaView } from "../design-system/SafeAreaView";
+import { ScreenBackground } from "../components/ScreenBackground";
 import { Headline } from "../design-system/Headline";
 import { ContentBlock } from "../design-system/ContentBlock";
 import { SectionTitle } from "../design-system/SectionTitle";
@@ -23,6 +23,7 @@ import { NoteIcon } from "../design-system/icons/NoteIcon";
 import { Subhead } from "../design-system/Subhead";
 import { ChevronRightIcon } from "../design-system/icons/ChevronRightIcon";
 import { Button } from "../design-system/Button";
+import { ScrollViewPadding } from "../components/ScrollViewPadding";
 
 type RollDetailScreenRouteProp = RouteProp<RootStackParamList, "RollDetail">;
 type RollDetailScreenNavigationProp = StackNavigationProp<
@@ -96,9 +97,9 @@ export function RollDetailScreen({ route, navigation }: Props) {
 
   if (!roll) {
     return (
-      <SafeAreaView>
+      <ScreenBackground>
         <Subhead>No roll found</Subhead>
-      </SafeAreaView>
+      </ScreenBackground>
     );
   }
 
@@ -167,11 +168,17 @@ export function RollDetailScreen({ route, navigation }: Props) {
   }
 
   return (
-    <SafeAreaView>
+    <ScreenBackground>
       <ScrollView>
         {!roll.isComplete && frameList.length > 0 ? (
           <ContentBlock>
-            <Button variant="secondary">New photo</Button>
+            <Button
+              variant="secondary"
+              onPress={() =>
+                navigation.navigate("AddFrame", { rollId: roll.id })
+              }>
+              New photo
+            </Button>
           </ContentBlock>
         ) : null}
         <ContentBlock>
@@ -197,7 +204,13 @@ export function RollDetailScreen({ route, navigation }: Props) {
           ) : (
             <>
               <SectionTitle>No photos taken yet</SectionTitle>
-              <Button variant="secondary">New photo</Button>
+              <Button
+                variant="secondary"
+                onPress={() =>
+                  navigation.navigate("AddFrame", { rollId: roll.id })
+                }>
+                New photo
+              </Button>
             </>
           )}
         </ContentBlock>
@@ -264,8 +277,9 @@ export function RollDetailScreen({ route, navigation }: Props) {
             Delete roll
           </Button>
         </ContentBlock>
+        <ScrollViewPadding />
       </ScrollView>
-    </SafeAreaView>
+    </ScreenBackground>
   );
 }
 

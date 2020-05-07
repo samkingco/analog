@@ -1,21 +1,12 @@
 import React from "react";
-import {
-  ScrollView,
-  TouchableOpacity,
-  FlatList,
-  StyleSheet,
-  View,
-} from "react-native";
+import { TouchableOpacity, StyleSheet, View } from "react-native";
 import { RouteProp, CompositeNavigationProp } from "@react-navigation/native";
 import {
   StackNavigationProp,
   createStackNavigator,
 } from "@react-navigation/stack";
-import pluralize from "pluralize";
 import { RootStackParamList } from "../App";
-import { SafeAreaView } from "../design-system/SafeAreaView";
-import { Subhead } from "../design-system/Subhead";
-import { AboutScreen } from "./AboutScreen";
+import { ScreenBackground } from "../components/ScreenBackground";
 import { NavigationHeader } from "../components/NavigationHeader";
 import { useSelector } from "react-redux";
 import { cameraBagSelectors, Camera, CameraLens } from "../store/camera-bag";
@@ -56,7 +47,7 @@ function CameraItem({ item, navigation }: CameraItemProps) {
     <TouchableOpacity
       activeOpacity={0.8}
       style={styles.listItem}
-      onPress={() => navigation.navigate("FrameDetail", { frameId: item.id })}>
+      onPress={() => {}}>
       <View style={styles.listItemContent}>
         <Headline>{item.name}</Headline>
       </View>
@@ -77,7 +68,7 @@ function CameraLensItem({ item, navigation }: CameraLensItemProps) {
     <TouchableOpacity
       activeOpacity={0.8}
       style={styles.listItem}
-      onPress={() => navigation.navigate("FrameDetail", { frameId: item.id })}>
+      onPress={() => {}}>
       <View style={styles.listItemContent}>
         <Headline>{item.name}</Headline>
       </View>
@@ -93,7 +84,7 @@ export function CameraBagScreenComponent({ navigation }: Props) {
   const lenses = useSelector(cameraBagSelectors.lensesList);
 
   return (
-    <SafeAreaView>
+    <ScreenBackground>
       <ContentBlock>
         <SectionTitle>Cameras</SectionTitle>
         <List
@@ -118,7 +109,7 @@ export function CameraBagScreenComponent({ navigation }: Props) {
         />
         <Button variant="secondary">Add lens</Button>
       </ContentBlock>
-    </SafeAreaView>
+    </ScreenBackground>
   );
 }
 
@@ -144,13 +135,6 @@ export function CameraBagScreen() {
           component={CameraBagScreenComponent}
           options={{
             title: "Camera bag",
-          }}
-        />
-        <Stack.Screen
-          name="About"
-          component={AboutScreen}
-          options={{
-            title: "About",
           }}
         />
       </Stack.Navigator>
