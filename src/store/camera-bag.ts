@@ -106,7 +106,24 @@ function camerasList(state: AppState): Camera[] {
   return list;
 }
 
+function lensById(state: AppState, id: string): CameraLens | undefined {
+  return state.cameraBag.cameraLenses[id];
+}
+
+function lensesList(state: AppState): CameraLens[] {
+  const list = [];
+  for (const id of Object.keys(state.cameraBag.cameraLenses)) {
+    const result = lensById(state, id);
+    if (result) {
+      list.push(result);
+    }
+  }
+  return list;
+}
+
 export const cameraBagSelectors = {
   cameraById,
   camerasList,
+  lensById,
+  lensesList,
 };

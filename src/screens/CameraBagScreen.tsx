@@ -1,5 +1,11 @@
 import React from "react";
-import { ScrollView, TouchableOpacity, FlatList } from "react-native";
+import {
+  ScrollView,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+  View,
+} from "react-native";
 import { RouteProp, CompositeNavigationProp } from "@react-navigation/native";
 import {
   StackNavigationProp,
@@ -12,9 +18,15 @@ import { Subhead } from "../design-system/Subhead";
 import { AboutScreen } from "./AboutScreen";
 import { NavigationHeader } from "../components/NavigationHeader";
 import { useSelector } from "react-redux";
-import { cameraBagSelectors } from "../store/camera-bag";
+import { cameraBagSelectors, Camera, CameraLens } from "../store/camera-bag";
 import { ContentBlock } from "../design-system/ContentBlock";
 import { Headline } from "../design-system/Headline";
+import { theme } from "../theme";
+import { Icon } from "../design-system/Icon";
+import { ChevronRightIcon } from "../design-system/icons/ChevronRightIcon";
+import { List } from "../design-system/List";
+import { SectionTitle } from "../design-system/SectionTitle";
+import { Button } from "../design-system/Button";
 
 export type CameraBagStackParamList = {
   CameraBag: undefined;
@@ -34,24 +46,78 @@ type Props = {
   navigation: CameraBagScreenNavigationProp;
 };
 
+interface CameraItemProps {
+  item: Camera;
+  navigation: CameraBagScreenNavigationProp;
+}
+
+function CameraItem({ item, navigation }: CameraItemProps) {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      style={styles.listItem}
+      onPress={() => navigation.navigate("FrameDetail", { frameId: item.id })}>
+      <View style={styles.listItemContent}>
+        <Headline>{item.name}</Headline>
+      </View>
+      <View>
+        <Icon type={ChevronRightIcon} color="subtle" />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+interface CameraLensItemProps {
+  item: CameraLens;
+  navigation: CameraBagScreenNavigationProp;
+}
+
+function CameraLensItem({ item, navigation }: CameraLensItemProps) {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      style={styles.listItem}
+      onPress={() => navigation.navigate("FrameDetail", { frameId: item.id })}>
+      <View style={styles.listItemContent}>
+        <Headline>{item.name}</Headline>
+      </View>
+      <View>
+        <Icon type={ChevronRightIcon} color="subtle" />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
 export function CameraBagScreenComponent({ navigation }: Props) {
   const cameras = useSelector(cameraBagSelectors.camerasList);
+  const lenses = useSelector(cameraBagSelectors.lensesList);
 
   return (
     <SafeAreaView>
-      <FlatList
-        data={cameras}
-        renderItem={({ item }) => (
-          <ContentBlock>
-            <Headline>{item.name}</Headline>
-            <Subhead>
-              {item.lensIds.length}{" "}
-              {item.lensIds.length === 1 ? "lens" : "lenses"}
-            </Subhead>
-          </ContentBlock>
-        )}
-        keyExtractor={(i) => i.id}
-      />
+      <ContentBlock>
+        <SectionTitle>Cameras</SectionTitle>
+        <List
+          style={{ marginBottom: theme.spacing.s12 }}
+          items={cameras}
+          keyExtractor={(i) => i.id}
+          renderItem={(item) => (
+            <CameraItem item={item} navigation={navigation} />
+          )}
+        />
+        <Button variant="secondary">Add camera</Button>
+      </ContentBlock>
+      <ContentBlock>
+        <SectionTitle>Lenses</SectionTitle>
+        <List
+          style={{ marginBottom: theme.spacing.s12 }}
+          items={lenses}
+          keyExtractor={(i) => i.id}
+          renderItem={(item) => (
+            <CameraLensItem item={item} navigation={navigation} />
+          )}
+        />
+        <Button variant="secondary">Add lens</Button>
+      </ContentBlock>
     </SafeAreaView>
   );
 }
@@ -91,3 +157,15 @@ export function CameraBagScreen() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  listItem: {
+    padding: theme.spacing.s12,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: theme.colors.background.interactive,
+  },
+  listItemContent: {
+    flex: 1,
+  },
+});

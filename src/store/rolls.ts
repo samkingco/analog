@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { Dispatch, AppState } from ".";
-import { Camera, cameraBagSelectors } from "./camera-bag";
+import { Camera, cameraBagSelectors, CameraLens } from "./camera-bag";
 import { FilmStock } from "./film-stock-database";
 import { filmStockSelectors } from "./film-stocks";
 
@@ -29,6 +29,7 @@ export interface ComputedRoll extends Roll {
 
 export interface Frame {
   id: string;
+  lensId: CameraLens["id"];
   captureTime: number;
   focalLength: number;
   aperture: number;
@@ -52,6 +53,7 @@ const initialState: FilmLogState = {
       frames: {
         frame_1: {
           id: "frame_1",
+          lensId: "lens_1",
           captureTime: Date.now(),
           focalLength: 80,
           aperture: 2.8,
@@ -61,6 +63,7 @@ const initialState: FilmLogState = {
         },
         frame_2: {
           id: "frame_2",
+          lensId: "lens_1",
           captureTime: Date.now(),
           focalLength: 80,
           aperture: 4,

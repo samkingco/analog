@@ -4,10 +4,10 @@ import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { ifIphoneX } from "react-native-iphone-x-helper";
 import { Title } from "../design-system/Title";
 import { theme } from "../theme";
-import { ArrowLeftIcon } from "../design-system/icons/ArrowLeftIcon";
-import { FilmRollIcon } from "../design-system/icons/FilmRollIcon";
-import { CloseIcon } from "../design-system/icons/CloseIcon";
 import { Icon } from "../design-system/Icon";
+import { ArrowLeftIcon } from "../design-system/icons/ArrowLeftIcon";
+import { CloseIcon } from "../design-system/icons/CloseIcon";
+import { CameraIcon } from "../design-system/icons/CameraIcon";
 
 interface Props extends StackHeaderProps {
   isModal?: boolean;
@@ -36,17 +36,25 @@ export function NavigationHeader({
     <View
       style={[styles.wrapper, { paddingTop: isModal ? 0 : ifIphoneX(44, 0) }]}>
       <View style={styles.topBar}>
-        {!showCloseButton && !previous ? <Icon type={FilmRollIcon} /> : null}
-        {showCloseButton && parentNavigation ? (
-          <TouchableOpacity onPress={parentNavigation.goBack}>
-            <Icon type={CloseIcon} />
-          </TouchableOpacity>
-        ) : undefined}
-        {previous ? (
-          <TouchableOpacity onPress={navigation.goBack}>
-            <Icon type={ArrowLeftIcon} />
-          </TouchableOpacity>
-        ) : undefined}
+        <View>
+          {showCloseButton && parentNavigation ? (
+            <TouchableOpacity onPress={parentNavigation.goBack}>
+              <Icon type={CloseIcon} />
+            </TouchableOpacity>
+          ) : undefined}
+          {previous ? (
+            <TouchableOpacity onPress={navigation.goBack}>
+              <Icon type={ArrowLeftIcon} />
+            </TouchableOpacity>
+          ) : undefined}
+        </View>
+        <View>
+          {!showCloseButton && !previous ? (
+            <TouchableOpacity onPress={() => navigation.navigate("CameraBag")}>
+              <Icon type={CameraIcon} />
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </View>
       <View style={styles.largeTitle}>
         <Title>{title}</Title>
@@ -62,6 +70,7 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     minHeight: 44,
     paddingHorizontal: theme.spacing.s8,
   },
