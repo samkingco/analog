@@ -12,11 +12,13 @@ import { CameraBagScreen } from "./screens/CameraBagScreen";
 import { SettingsScreen } from "./screens/SettingsScreen";
 import { NavigationHeader } from "./components/NavigationHeader";
 import { RollDetailScreen } from "./screens/RollDetailScreen";
+import { AddRollScreen } from "./screens/AddRollScreen";
 
 export type RootStackParamList = {
   Rolls: undefined;
   RollDetail: { rollId: string };
   FrameDetail: { frameId: string };
+  AddRoll: undefined;
   CameraBag: undefined;
   Settings: undefined;
 };
@@ -38,6 +40,14 @@ export const App = () => {
           }}>
           <Stack.Screen name="Rolls" component={RollsScreen} />
           <Stack.Screen name="RollDetail" component={RollDetailScreen} />
+          <Stack.Screen
+            name="AddRoll"
+            component={AddRollScreen}
+            options={{
+              header: () => null,
+              ...TransitionPresets.ModalPresentationIOS,
+            }}
+          />
           <Stack.Screen
             name="CameraBag"
             component={CameraBagScreen}

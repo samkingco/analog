@@ -104,7 +104,13 @@ export function RollsScreen({ navigation }: Props) {
               />
             )}
           />
-          <Button variant="secondary">Start a new roll</Button>
+          <Button
+            variant="secondary"
+            onPress={() => {
+              navigation.navigate("AddRoll");
+            }}>
+            Start a new roll
+          </Button>
         </ContentBlock>
 
         {complete.length > 0 ? (

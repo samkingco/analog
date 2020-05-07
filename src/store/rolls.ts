@@ -1,8 +1,9 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Dispatch, AppState } from ".";
 import { Camera, cameraBagSelectors, CameraLens } from "./camera-bag";
 import { FilmStock } from "./film-stock-database";
 import { filmStockSelectors } from "./film-stocks";
+import { uuid } from "../util/uuid";
 
 export interface Roll {
   id: string;
@@ -42,9 +43,21 @@ interface FilmLogState {
   rolls: {
     [id: string]: Roll;
   };
+  tempRoll: Roll;
 }
 
+const blankRoll: Roll = {
+  id: "roll_blank",
+  filmStockId: "",
+  cameraId: "",
+  frames: {},
+  framesOrder: [],
+  maxFrameCount: 0,
+  dateLoaded: Date.now(),
+};
+
 const initialState: FilmLogState = {
+  tempRoll: blankRoll,
   rolls: {
     roll_1: {
       id: "roll_1",
@@ -137,12 +150,79 @@ export const { actions, reducer } = createSlice({
   initialState,
   reducers: {
     reset: () => initialState,
+    resetTempRoll: (state) => {
+      state.tempRoll = blankRoll;
+    },
+    setTempRollFilmStock: (
+      state,
+      action: PayloadAction<{ filmStockId: string }>,
+    ) => {
+      state.tempRoll.filmStockId = action.payload.filmStockId;
+    },
+    setTempRollCamera: (state, action: PayloadAction<{ cameraId: string }>) => {
+      state.tempRoll.cameraId = action.payload.cameraId;
+    },
+    setTempRollExtraInfo: (
+      state,
+      action: PayloadAction<{ maxFrameCount: number; notes?: string }>,
+    ) => {
+      state.tempRoll.maxFrameCount = action.payload.maxFrameCount;
+      state.tempRoll.notes = action.payload.notes;
+    },
+    saveTempRoll: (state) => {
+      const rollId = uuid("roll");
+      state.rolls[rollId] = {
+        ...state.tempRoll,
+        id: rollId,
+        dateLoaded: Date.now(),
+      };
+      state.tempRoll = blankRoll;
+    },
+    deleteRoll: (state, action: PayloadAction<{ rollId: string }>) => {
+      delete state.rolls[action.payload.rollId];
+    },
   },
 });
 
 export function reset() {
   return function (dispatch: Dispatch) {
     dispatch(actions.reset());
+  };
+}
+
+export function resetTempRoll() {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.resetTempRoll());
+  };
+}
+
+export function setTempRollFilmStock(filmStockId: string) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.setTempRollFilmStock({ filmStockId }));
+  };
+}
+
+export function setTempRollCamera(cameraId: string) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.setTempRollCamera({ cameraId }));
+  };
+}
+
+export function setTempRollExtraInfo(maxFrameCount: number, notes?: string) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.setTempRollExtraInfo({ maxFrameCount, notes }));
+  };
+}
+
+export function saveTempRoll() {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.saveTempRoll());
+  };
+}
+
+export function deleteRoll(rollId: string) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.deleteRoll({ rollId }));
   };
 }
 
@@ -218,8 +298,13 @@ function rollsListGrouped(
   return { shooting, complete, processed };
 }
 
+function tempRoll(state: AppState): Roll {
+  return state.rolls.tempRoll;
+}
+
 export const rollSelectors = {
   rollById,
   rollsList,
   rollsListGrouped,
+  tempRoll,
 };

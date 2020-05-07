@@ -1,11 +1,11 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { ScrollView, StyleSheet, View, TouchableOpacity } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { format } from "date-fns";
 import { RootStackParamList } from "../App";
-import { rollSelectors, Frame } from "../store/rolls";
+import { rollSelectors, Frame, deleteRoll } from "../store/rolls";
 import { SafeAreaView } from "../design-system/SafeAreaView";
 import { Headline } from "../design-system/Headline";
 import { ContentBlock } from "../design-system/ContentBlock";
@@ -82,16 +82,24 @@ interface InfoItem {
 
 export function RollDetailScreen({ route, navigation }: Props) {
   const { rollId } = route.params;
+  const dispatch = useDispatch();
+
   const roll = useSelector((s) => rollSelectors.rollById(s, rollId));
+
   const filmStock = useSelector((s) =>
     filmStockSelectors.filmStockById(s, roll ? roll.filmStockId : ""),
   );
+
   const camera = useSelector((s) =>
     cameraBagSelectors.cameraById(s, roll ? roll.cameraId : ""),
   );
 
   if (!roll) {
-    return null;
+    return (
+      <SafeAreaView>
+        <Subhead>No roll found</Subhead>
+      </SafeAreaView>
+    );
   }
 
   navigation.setOptions({ title: roll.filmStockName });
@@ -247,7 +255,14 @@ export function RollDetailScreen({ route, navigation }: Props) {
           />
         </ContentBlock>
         <ContentBlock>
-          <Button variant="secondary">Delete roll</Button>
+          <Button
+            variant="secondary"
+            onPress={() => {
+              dispatch(deleteRoll(roll.id));
+              navigation.popToTop();
+            }}>
+            Delete roll
+          </Button>
         </ContentBlock>
       </ScrollView>
     </SafeAreaView>
