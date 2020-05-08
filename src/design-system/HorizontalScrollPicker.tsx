@@ -182,7 +182,7 @@ export function HorizontalScrollPicker<T>(
               const opacityTrail = 50;
               let opacityBase = 0.4;
 
-              if (layout && hasMeasuredAll) {
+              if (layout && hasMeasuredAll && totalItemWidths > 0) {
                 const startOffset = layout.x;
                 const endOffset = layout.x + layout.width;
 
