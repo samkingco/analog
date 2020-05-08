@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import {
   StyleSheet,
   View,
@@ -31,6 +31,23 @@ interface ItemLayoutMap {
   };
 }
 
+function makeInitialItemLayouts<T>(
+  items: HorizontalScrollPickerProps<T>["items"],
+  keyExtractor: HorizontalScrollPickerProps<T>["keyExtractor"],
+): ItemLayoutMap {
+  return items.reduce((map, item, index) => {
+    const key = keyExtractor(item, index);
+    return {
+      ...map,
+      [key]: {
+        index,
+        x: 0,
+        width: 0,
+      },
+    };
+  }, {});
+}
+
 export function HorizontalScrollPicker<T>(
   props: HorizontalScrollPickerProps<T>,
 ) {
@@ -41,42 +58,39 @@ export function HorizontalScrollPicker<T>(
   const [selectedIndex, setSelectedIndex] = useState(0);
   const isPausing = useRef(false);
 
-  const lastItemKey = props.keyExtractor(
-    props.items[props.items.length - 1],
-    props.items.length - 1,
+  const getInitialItemLayouts = useMemo(
+    () => makeInitialItemLayouts(props.items, props.keyExtractor),
+    [props.items, props.keyExtractor],
   );
 
-  function makeInitialItemLayouts(
-    items: HorizontalScrollPickerProps<T>["items"],
-  ) {
-    return items.reduce((map, item, index) => {
-      const key = props.keyExtractor(item, index);
-      return {
-        ...map,
-        [key]: {
-          index,
-          x: 0,
-          width: 0,
-        },
-      };
-    }, {});
-  }
+  const lastItemKey = useMemo(
+    () =>
+      props.keyExtractor(
+        props.items[props.items.length - 1],
+        props.items.length - 1,
+      ),
+    [props.keyExtractor, props.items],
+  );
 
   const [itemLayouts, setItemLayouts] = useState<ItemLayoutMap>(
-    makeInitialItemLayouts(props.items),
+    getInitialItemLayouts,
   );
 
   const lastItem = itemLayouts[lastItemKey];
   const totalItemWidths = lastItem ? lastItem.x + lastItem.width : 0;
   const lastItemWidth = lastItem ? lastItem.width : 0;
 
-  const hasMeasuredAll = Object.keys(itemLayouts).every((key) => {
-    const item = itemLayouts[key];
-    return item.width > 0;
-  });
+  const hasMeasuredAll = useMemo(
+    () =>
+      Object.keys(itemLayouts).every((key) => {
+        const item = itemLayouts[key];
+        return item.width > 0;
+      }),
+    [itemLayouts],
+  );
 
   useEffect(() => {
-    setItemLayouts(makeInitialItemLayouts(props.items));
+    setItemLayouts(getInitialItemLayouts);
     setSelectedIndex(0);
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({
@@ -182,7 +196,12 @@ export function HorizontalScrollPicker<T>(
               const opacityTrail = 50;
               let opacityBase = 0.4;
 
-              if (layout && hasMeasuredAll && totalItemWidths > 0) {
+              const canAnimate = useMemo(
+                () => layout && hasMeasuredAll && totalItemWidths > 0,
+                [layout, hasMeasuredAll, totalItemWidths],
+              );
+
+              if (canAnimate) {
                 const startOffset = layout.x;
                 const endOffset = layout.x + layout.width;
 
@@ -211,6 +230,9 @@ export function HorizontalScrollPicker<T>(
                   key={key}
                   onLayout={(event: LayoutChangeEvent) => {
                     const { x, width } = event.nativeEvent.layout;
+                    if (width === 0) {
+                      return;
+                    }
                     setItemLayouts((state) => ({
                       ...state,
                       [key]: { index, x, width },
