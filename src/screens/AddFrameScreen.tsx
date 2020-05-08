@@ -87,6 +87,10 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
       : [];
   }, [selectedLens]);
 
+  const isPrimeLens = Boolean(
+    selectedLens && selectedLens.minFocalLength === selectedLens.maxFocalLength,
+  );
+
   const [shutterSpeed, setShutterSpeed] = useState({
     shutterWhole: 0,
     shutterFraction: 0,
@@ -104,8 +108,6 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
     ...shutterSpeed,
     notes,
   };
-
-  console.log(frameToSave);
 
   return (
     <ScreenBackground>
@@ -127,9 +129,11 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
             />
           </ContentBlock>
           <ContentBlock>
+            <SectionTitle>Meta</SectionTitle>
             <HorizontalScrollPicker
               label="Shutter speed"
               items={shutterSpeeds}
+              initialIndex={32}
               keyExtractor={(i) => i.label}
               renderDisplayValue={(item) => item.label}
               onSelect={(item) =>
@@ -142,32 +146,22 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
             <HorizontalScrollPicker
               label="Aperture"
               items={apertures}
+              initialIndex={16}
               keyExtractor={(i) => i.label}
               renderDisplayValue={(item) => item.label}
               onSelect={(item) => setAperture(item.aperture)}
               style={{ marginTop: theme.spacing.s12 }}
             />
-            {/* {isPrimeLens ? (
-              <TextInput
+            {!isPrimeLens ? (
+              <HorizontalScrollPicker
                 label="Focal length (mm)"
-                value={`${focalLength}`}
-                onChange={(value) =>
-                  value ? setFocalLength(parseInt(value, 10)) : 0
-                }
-                placeholder={"0"}
-                inputProps={{ keyboardType: "number-pad" }}
+                items={focalLengths}
+                keyExtractor={(i) => i.label}
+                renderDisplayValue={(item) => item.label}
+                onSelect={(item) => setFocalLength(item.focalLength)}
                 style={{ marginTop: theme.spacing.s12 }}
               />
-            ) : ( */}
-            <HorizontalScrollPicker
-              label="Focal length (mm)"
-              items={focalLengths}
-              keyExtractor={(i) => i.label}
-              renderDisplayValue={(item) => item.label}
-              onSelect={(item) => setFocalLength(item.focalLength)}
-              style={{ marginTop: theme.spacing.s12 }}
-            />
-            {/* )} */}
+            ) : null}
             <TextInput
               label="Notes (optional)"
               value={notes}

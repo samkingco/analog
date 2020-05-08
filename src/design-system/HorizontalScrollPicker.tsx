@@ -1,22 +1,22 @@
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
   ScrollView,
   Animated,
-  LayoutChangeEvent,
   StyleProp,
   ViewStyle,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from "react-native";
+import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 import { theme } from "../theme";
 import { Subhead } from "./Subhead";
 import { Headline } from "./Headline";
-import { Fade } from "./Fade";
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 interface HorizontalScrollPickerProps<T> {
   style?: StyleProp<ViewStyle>;
-  label?: string;
+  label: string;
   items: T[];
   renderDisplayValue: (item: T, index: number) => string;
   keyExtractor: (item: T, index: number) => string | number;
@@ -24,24 +24,11 @@ interface HorizontalScrollPickerProps<T> {
   initialIndex?: number;
 }
 
-interface ItemLayout {
-  index: number;
-  key: string | number;
-  x: number;
-  width: number;
-}
-
-function makeInitialItemLayouts<T>(
-  items: HorizontalScrollPickerProps<T>["items"],
-  keyExtractor: HorizontalScrollPickerProps<T>["keyExtractor"],
-): Map<number, ItemLayout> {
-  const layoutMap = new Map();
-  items.forEach((item, index) => {
-    const key = keyExtractor(item, index);
-    layoutMap.set(index, { index, key, x: 0, width: 0 });
-  });
-  return layoutMap;
-}
+const TICK_WIDTH = 2;
+const TICK_HORZ_SPACE = theme.spacing.s4;
+const TICK_TOTAL_WIDTH = TICK_WIDTH + TICK_HORZ_SPACE * 2;
+const TICKS_PER_VALUE = 5;
+const TICK_PAGE_SIZE = TICK_TOTAL_WIDTH * TICKS_PER_VALUE;
 
 export function HorizontalScrollPicker<T>(
   props: HorizontalScrollPickerProps<T>,
@@ -51,210 +38,99 @@ export function HorizontalScrollPicker<T>(
   const animatedScrollX = new Animated.Value(0);
   const [scrollViewOuterWidth, setScrollViewOuterWidth] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(props.initialIndex || 0);
-  const isPausing = useRef(false);
 
-  const getInitialItemLayouts = useMemo(
-    () => makeInitialItemLayouts(props.items, props.keyExtractor),
-    [props.items, props.keyExtractor],
+  const itemDisplayValues = props.items.map((item, index) =>
+    props.renderDisplayValue(item, index),
   );
 
-  const [itemLayouts, setItemLayouts] = useState<Map<number, ItemLayout>>(
-    getInitialItemLayouts,
+  const pagesPerView = Math.floor(scrollViewOuterWidth / TICK_PAGE_SIZE);
+  const ticksForItems = props.items.length * TICKS_PER_VALUE + 1;
+  const overflowTicks = (pagesPerView - 1) * TICKS_PER_VALUE;
+
+  const ticks = Array.from(new Array(ticksForItems + overflowTicks)).map(
+    (_, i) => i,
   );
-
-  const lastItem = itemLayouts.get(props.items.length - 1);
-  const totalItemWidths = lastItem ? lastItem.x + lastItem.width : 0;
-  const lastItemWidth = lastItem ? lastItem.width : 0;
-
-  const hasMeasuredAll = useMemo(() => {
-    let measuredCount = 0;
-    for (let [_, layout] of itemLayouts) {
-      if (layout.width > 0) {
-        measuredCount = measuredCount + 1;
-      }
-    }
-    return measuredCount === itemLayouts.size;
-  }, [itemLayouts]);
-
-  useEffect(() => {
-    if (props.initialIndex) {
-      scrollToIndex(props.initialIndex);
-    }
-  }, [props.initialIndex, hasMeasuredAll]);
-
-  useEffect(() => {
-    setItemLayouts(getInitialItemLayouts);
-    setSelectedIndex(0);
-    if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({
-        x: 0,
-        y: 0,
-        animated: false,
-      });
-    }
-  }, [props.items]);
-
-  useEffect(() => {
-    props.onSelect(props.items[selectedIndex]);
-  }, [selectedIndex]);
-
-  function getSelectedItem() {
-    const scrollOffset = (animatedScrollX as any)._value;
-    let closestItemToEdge = undefined;
-
-    for (let [_, layout] of itemLayouts) {
-      if (!closestItemToEdge) {
-        closestItemToEdge = layout;
-      }
-      if (
-        Math.abs(layout.x - scrollOffset) <
-        Math.abs(closestItemToEdge.x - scrollOffset)
-      ) {
-        closestItemToEdge = layout;
-      }
-    }
-
-    return closestItemToEdge;
-  }
 
   function scrollToIndex(index: number, animated = true) {
-    const layoutForIndex = itemLayouts.get(index);
-    if (!layoutForIndex) {
-      return;
-    }
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({
-        x: layoutForIndex.x,
+        x: index * TICK_PAGE_SIZE,
         y: 0,
         animated,
       });
     }
   }
 
-  function onScrollStop() {
-    isPausing.current = true;
-
-    setTimeout(() => {
-      // If we're still paused after the timeout, set the selected item
-      if (isPausing.current) {
-        const selected = getSelectedItem();
-        setSelectedIndex(selected ? selected.index : 0);
-
-        // Reset the pause and "snap" to the selected items x position
-        isPausing.current = false;
-        scrollToIndex(selected ? selected.index : 0);
-      }
-    }, 150);
+  function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    animatedScrollX.setValue(event.nativeEvent.contentOffset.x);
+    const absIndex = Math.round(
+      event.nativeEvent.contentOffset.x / TICK_PAGE_SIZE,
+    );
+    if (absIndex > props.items.length - 1 || absIndex < 0) {
+      return;
+    }
+    setSelectedIndex(absIndex);
   }
 
-  function cancelPausing() {
-    isPausing.current = false;
-  }
+  useEffect(() => {
+    if (props.initialIndex) {
+      scrollToIndex(props.initialIndex, false);
+    }
+  }, [props.initialIndex]);
+
+  useEffect(() => {
+    ReactNativeHapticFeedback.trigger("impactLight", {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false,
+    });
+    props.onSelect(props.items[selectedIndex]);
+  }, [selectedIndex]);
 
   return (
     <View style={[styles.wrapper, props.style]} ref={wrapperRef}>
-      {props.label ? (
-        <View style={styles.label}>
-          <Subhead
-            style={{
-              lineHeight: theme.fontSizes.s,
-            }}>
-            {props.label}
-          </Subhead>
-        </View>
-      ) : null}
+      <View style={styles.label}>
+        <Subhead
+          style={{
+            lineHeight: theme.fontSizes.m,
+          }}>
+          {props.label}
+        </Subhead>
+      </View>
+      <View style={styles.value}>
+        <Headline
+          style={{
+            lineHeight: theme.fontSizes.m,
+          }}>
+          {itemDisplayValues[selectedIndex]}
+        </Headline>
+      </View>
       <ScrollView
         ref={scrollViewRef}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollViewContentContainer}
         horizontal={true}
-        scrollEnabled={hasMeasuredAll}
-        scrollToOverflowEnabled={true}
-        showsHorizontalScrollIndicator={false}
-        snapToAlignment="start"
         onLayout={(event) => {
+          if (props.initialIndex) {
+            scrollToIndex(props.initialIndex, false);
+          }
           setScrollViewOuterWidth(event.nativeEvent.layout.width);
         }}
-        onScroll={(event) => {
-          // setActualScrollX(event.nativeEvent.contentOffset.x);
-          animatedScrollX.setValue(event.nativeEvent.contentOffset.x);
-        }}
-        onScrollEndDrag={onScrollStop}
-        onMomentumScrollBegin={cancelPausing}
-        onMomentumScrollEnd={onScrollStop}
+        onScroll={onScroll}
+        showsHorizontalScrollIndicator={false}
+        snapToAlignment="start"
+        snapToInterval={TICK_PAGE_SIZE}
+        decelerationRate="fast"
         scrollEventThrottle={16}
-        contentContainerStyle={{
-          // Add extra space to the end of the ScrollView so you can get
-          // to the last item
-          paddingRight:
-            scrollViewOuterWidth - lastItemWidth - theme.spacing.s12,
-        }}>
-        {props.items.length > 0
-          ? props.items.map((item, index) => {
-              const key = props.keyExtractor(item, index);
-              const content = props.renderDisplayValue(item, index);
-
-              if (!content) {
-                return null;
-              }
-
-              const layout = itemLayouts.get(index);
-
-              let opacityInterpolation;
-              const opacityTrail = 50;
-              let opacityBase = 0.4;
-
-              if (layout && hasMeasuredAll && totalItemWidths > 0) {
-                const startOffset = layout.x;
-                const endOffset = layout.x + layout.width;
-
-                opacityInterpolation = animatedScrollX.interpolate({
-                  inputRange: [
-                    opacityTrail * -2,
-                    startOffset - opacityTrail,
-                    startOffset,
-                    endOffset,
-                    endOffset + opacityTrail,
-                    totalItemWidths + opacityTrail * 2,
-                  ],
-                  outputRange: [
-                    opacityBase,
-                    opacityBase,
-                    1,
-                    1,
-                    opacityBase,
-                    opacityBase,
-                  ],
-                });
-              }
-
-              return (
-                <Animated.View
-                  key={key}
-                  onLayout={(event: LayoutChangeEvent) => {
-                    const { x, width } = event.nativeEvent.layout;
-                    if (width === 0) {
-                      return;
-                    }
-                    setItemLayouts(
-                      new Map(itemLayouts.set(index, { index, key, x, width })),
-                    );
-                  }}
-                  style={[
-                    styles.item,
-                    {
-                      opacity: opacityInterpolation || opacityBase,
-                    },
-                  ]}>
-                  <TouchableOpacity onPress={() => scrollToIndex(index)}>
-                    <Fade
-                      isVisible={Boolean(layout && hasMeasuredAll)}
-                      minOpacity={0.2}>
-                      <Headline>{content}</Headline>
-                    </Fade>
-                  </TouchableOpacity>
-                </Animated.View>
-              );
-            })
-          : null}
+        bounces={true}>
+        {ticks.map((tick) => (
+          <View
+            style={[
+              styles.tick,
+              tick % TICKS_PER_VALUE !== 0 ? styles.tickSmall : undefined,
+            ]}
+            key={tick}
+          />
+        ))}
       </ScrollView>
     </View>
   );
@@ -262,12 +138,43 @@ export function HorizontalScrollPicker<T>(
 
 const styles = StyleSheet.create({
   wrapper: {
+    height: 64,
     borderRadius: theme.misc.borderRadius,
     backgroundColor: theme.colors.background.interactive,
   },
+  scrollView: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: theme.misc.borderRadius,
+  },
+  scrollViewContentContainer: {
+    paddingTop: 40,
+    paddingHorizontal: theme.spacing.s12,
+  },
   label: {
     paddingTop: theme.spacing.s12,
-    paddingHorizontal: theme.spacing.s12,
+    paddingLeft: theme.spacing.s12,
+  },
+  value: {
+    position: "absolute",
+    top: theme.spacing.s12,
+    right: theme.spacing.s12,
+  },
+  tick: {
+    width: TICK_WIDTH,
+    height: 12,
+    backgroundColor: theme.colors.background.inverted,
+    marginHorizontal: TICK_HORZ_SPACE,
+    marginVertical: theme.spacing.s12,
+    opacity: 0.4,
+  },
+  tickSmall: {
+    height: 8,
+    marginTop: theme.spacing.s12 + 4,
+    opacity: 0.3,
   },
   item: {
     paddingTop: theme.spacing.s8 + 0.5,

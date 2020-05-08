@@ -66,8 +66,8 @@ export const TextInput = (props: Props) => {
           {props.label ? (
             <Subhead
               style={{
-                lineHeight: theme.fontSizes.s,
-                marginBottom: theme.spacing.s8,
+                lineHeight: theme.fontSizes.m,
+                marginBottom: theme.spacing.s4 - 1,
               }}>
               {props.label}
             </Subhead>
@@ -107,8 +107,8 @@ const styles = StyleSheet.create({
   },
   input: {
     padding: 0,
-    paddingTop: theme.spacing.s4 / 2,
-    paddingBottom: theme.spacing.s4,
+    paddingTop: 0,
+    paddingBottom: 0,
     fontFamily: theme.fonts.normal,
     fontSize: theme.fontSizes.m,
     lineHeight: theme.fontSizes.m * 1.3,
