@@ -12,6 +12,7 @@ import { theme } from "../theme";
 import { Subhead } from "./Subhead";
 import { Headline } from "./Headline";
 import { Fade } from "./Fade";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 interface HorizontalScrollPickerProps<T> {
   style?: StyleProp<ViewStyle>;
@@ -49,7 +50,7 @@ export function HorizontalScrollPicker<T>(
   const scrollViewRef = useRef<ScrollView>(null);
   const animatedScrollX = new Animated.Value(0);
   const [scrollViewOuterWidth, setScrollViewOuterWidth] = useState(0);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(props.initialIndex || 0);
   const isPausing = useRef(false);
 
   const getInitialItemLayouts = useMemo(
@@ -74,6 +75,12 @@ export function HorizontalScrollPicker<T>(
     }
     return measuredCount === itemLayouts.size;
   }, [itemLayouts]);
+
+  useEffect(() => {
+    if (props.initialIndex) {
+      scrollToIndex(props.initialIndex);
+    }
+  }, [props.initialIndex, hasMeasuredAll]);
 
   useEffect(() => {
     setItemLayouts(getInitialItemLayouts);
@@ -110,6 +117,20 @@ export function HorizontalScrollPicker<T>(
     return closestItemToEdge;
   }
 
+  function scrollToIndex(index: number, animated = true) {
+    const layoutForIndex = itemLayouts.get(index);
+    if (!layoutForIndex) {
+      return;
+    }
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        x: layoutForIndex.x,
+        y: 0,
+        animated,
+      });
+    }
+  }
+
   function onScrollStop() {
     isPausing.current = true;
 
@@ -121,13 +142,7 @@ export function HorizontalScrollPicker<T>(
 
         // Reset the pause and "snap" to the selected items x position
         isPausing.current = false;
-        if (scrollViewRef.current) {
-          scrollViewRef.current.scrollTo({
-            x: selected ? selected.x : 0,
-            y: 0,
-            animated: true,
-          });
-        }
+        scrollToIndex(selected ? selected.index : 0);
       }
     }, 150);
   }
@@ -229,11 +244,13 @@ export function HorizontalScrollPicker<T>(
                       opacity: opacityInterpolation || opacityBase,
                     },
                   ]}>
-                  <Fade
-                    isVisible={Boolean(layout && hasMeasuredAll)}
-                    minOpacity={0.2}>
-                    <Headline>{content}</Headline>
-                  </Fade>
+                  <TouchableOpacity onPress={() => scrollToIndex(index)}>
+                    <Fade
+                      isVisible={Boolean(layout && hasMeasuredAll)}
+                      minOpacity={0.2}>
+                      <Headline>{content}</Headline>
+                    </Fade>
+                  </TouchableOpacity>
                 </Animated.View>
               );
             })
