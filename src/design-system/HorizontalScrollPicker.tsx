@@ -35,32 +35,41 @@ export function HorizontalScrollPicker<T>(
   props: HorizontalScrollPickerProps<T>,
 ) {
   const wrapperRef = useRef<View>(null);
+
   const scrollViewRef = useRef<ScrollView>(null);
   const animatedScrollX = new Animated.Value(0);
-  const [scrollOffset, setScrollOffset] = useState(0);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [itemLayoutMap, setItemLayoutMap] = useState<ItemLayoutMap>({});
   const [scrollViewOuterWidth, setScrollViewOuterWidth] = useState(0);
-  const [scrollViewInnerWidth, setScrollViewInnerWidth] = useState(0);
-  const isSnapping = useRef(false);
 
+  const [itemLayoutMap, setItemLayoutMap] = useState<ItemLayoutMap>({});
+  const [lastItemPosition, setLastItemPosition] = useState({ x: 0, width: 0 });
+  const totalItemsWidth = lastItemPosition.x + lastItemPosition.width;
+
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const isPausing = useRef(false);
+
+  // Pass the selected item back up to the parent
   useEffect(() => {
     props.onSelect(props.items[selectedIndex]);
   }, [selectedIndex]);
 
+  // Update the item layouts when items change
+  useEffect(() => {
+    setLastItemPosition(getLastItemPosition());
+  }, [itemLayoutMap, props.items]);
+
   function itemLayoutsSortedByIndex() {
     return Object.keys(itemLayoutMap)
       .map((key) => itemLayoutMap[key])
-      .sort((a, b) => (a.index > b.index ? -1 : 1));
+      .sort((a, b) => (a.index > b.index ? 1 : -1));
   }
 
-  function lastItemRightEdgePosition() {
+  function getLastItemPosition() {
     const itemLayouts = itemLayoutsSortedByIndex();
-    if (itemLayouts.length <= 0) {
-      return 0;
+    if (itemLayouts.length < props.items.length) {
+      return { x: 0, width: 0 };
     }
     const lastItem = itemLayouts[itemLayouts.length - 1];
-    return lastItem.x + lastItem.width;
+    return { x: lastItem.x, width: lastItem.width };
   }
 
   function getSelectedItem() {
@@ -68,23 +77,27 @@ export function HorizontalScrollPicker<T>(
     if (itemLayouts.length <= 0) {
       return undefined;
     }
+    const scrollOffset = (animatedScrollX as any)._value;
     const closestItemToEdge = itemLayouts.reduce(function (prev, curr) {
       return Math.abs(curr.x - scrollOffset) < Math.abs(prev.x - scrollOffset)
         ? curr
         : prev;
     });
-
     return closestItemToEdge;
   }
 
   function onScrollStop() {
-    isSnapping.current = true;
+    // Pause
+    isPausing.current = true;
 
     setTimeout(() => {
-      if (isSnapping.current) {
+      // If we're still paused after the timeout, set the selected item
+      if (isPausing.current) {
         const selected = getSelectedItem();
         setSelectedIndex(selected ? selected.index : 0);
-        isSnapping.current = false;
+
+        // Reset the pause and "snap" to the selected items x position
+        isPausing.current = false;
         if (scrollViewRef.current) {
           scrollViewRef.current.scrollTo({
             x: selected ? selected.x : 0,
@@ -97,7 +110,7 @@ export function HorizontalScrollPicker<T>(
   }
 
   function cancelPausing() {
-    isSnapping.current = false;
+    isPausing.current = false;
   }
 
   return (
@@ -114,14 +127,10 @@ export function HorizontalScrollPicker<T>(
       ) : null}
       <ScrollView
         ref={scrollViewRef}
-        onContentSizeChange={(width) => {
-          setScrollViewInnerWidth(width);
-        }}
         onLayout={(event) => {
           setScrollViewOuterWidth(event.nativeEvent.layout.width);
         }}
         onScroll={(event) => {
-          setScrollOffset(event.nativeEvent.contentOffset.x);
           animatedScrollX.setValue(event.nativeEvent.contentOffset.x);
         }}
         onScrollEndDrag={onScrollStop}
@@ -133,15 +142,14 @@ export function HorizontalScrollPicker<T>(
         showsHorizontalScrollIndicator={false}
         snapToAlignment="start"
         contentContainerStyle={{
+          // Add extra space to the end of the ScrollView so you can get
+          // to the last item
           paddingRight:
-            scrollViewOuterWidth -
-            lastItemRightEdgePosition() -
-            theme.spacing.s12,
+            scrollViewOuterWidth - lastItemPosition.width - theme.spacing.s12,
         }}>
         {props.items.map((item, index) => {
           const key = props.keyExtractor(item, index);
           const layout = itemLayoutMap[key];
-
           const content = props.renderDisplayValue(item, index);
 
           if (!content) {
@@ -157,16 +165,17 @@ export function HorizontalScrollPicker<T>(
           }
 
           const opacityBase = 0.4;
+          const opacityTrail = 25;
           let opacityInterpolation;
-          if (layout && scrollViewInnerWidth > 0) {
+          if (layout && totalItemsWidth) {
             opacityInterpolation = animatedScrollX.interpolate({
               inputRange: [
-                -100,
-                startOffset - 50,
+                opacityTrail * -2,
+                startOffset - opacityTrail,
                 startOffset,
                 endOffset,
-                endOffset + 50,
-                scrollViewInnerWidth + 100,
+                endOffset + opacityTrail,
+                totalItemsWidth + opacityTrail * 2,
               ],
               outputRange: [
                 opacityBase,

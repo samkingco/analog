@@ -119,7 +119,7 @@ export const makeFocalLengths = (min: number, max: number) => {
     const focalLength = min + index;
     return {
       focalLength,
-      label: `${focalLength}mm`,
+      label: `${focalLength}`,
     };
   });
 };
