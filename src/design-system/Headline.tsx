@@ -28,6 +28,6 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: theme.fonts.normal,
     fontSize: theme.fontSizes.m,
-    lineHeight: theme.fontSizes.m * 1.5,
+    lineHeight: theme.fontSizes.l,
   },
 });

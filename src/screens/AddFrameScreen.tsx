@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { TouchableOpacity, StyleSheet, View } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -53,11 +53,9 @@ function LensItem({ item, navigation, isSelected, onPress }: LensItemProps) {
       <View style={styles.listItemContent}>
         <Headline>{item.name}</Headline>
       </View>
-      {isSelected ? (
-        <View>
-          <Icon type={CheckIcon} />
-        </View>
-      ) : null}
+      <View style={{ opacity: isSelected ? 1 : 0 }}>
+        <Icon type={CheckIcon} />
+      </View>
     </TouchableOpacity>
   );
 }
@@ -67,19 +65,27 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
   const { rollId } = route.params;
   const roll = useSelector((s) => rollSelectors.rollById(s, rollId));
 
+  // Get the list of lenses for this camera
   const availableLenses = useSelector((s) =>
     cameraBagSelectors.lensesForCamera(s, roll ? roll.cameraId : ""),
   );
+
   const [selectedLensId, setSelectedLensId] = useState(
     availableLenses.length > 0 ? availableLenses[0].id : "",
   );
-  const selectedLens = availableLenses.find((i) => i.id === selectedLensId);
-  const isPrimeLens =
-    selectedLens && selectedLens.minFocalLength === selectedLens.maxFocalLength;
-  const focalLengths = makeFocalLengths(
-    selectedLens ? selectedLens.minFocalLength : 0,
-    selectedLens ? selectedLens.maxFocalLength : 0,
+
+  const selectedLens = useSelector((s) =>
+    cameraBagSelectors.lensById(s, selectedLensId),
   );
+
+  const focalLengths = useMemo(() => {
+    return selectedLens
+      ? makeFocalLengths(
+          selectedLens.minFocalLength,
+          selectedLens.maxFocalLength,
+        )
+      : [];
+  }, [selectedLens]);
 
   const [shutterSpeed, setShutterSpeed] = useState({
     shutterWhole: 0,
@@ -87,15 +93,9 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
   });
   const [aperture, setAperture] = useState(0);
   const [focalLength, setFocalLength] = useState(
-    selectedLens && isPrimeLens ? selectedLens.minFocalLength : 0,
+    selectedLens ? selectedLens.minFocalLength : 0,
   );
   const [notes, setNotes] = useState("");
-
-  useEffect(() => {
-    const selectedFocalLength =
-      selectedLens && isPrimeLens ? selectedLens.minFocalLength : 0;
-    setFocalLength(selectedFocalLength);
-  }, [selectedLensId]);
 
   const frameToSave = {
     lensId: selectedLensId,
@@ -104,6 +104,8 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
     ...shutterSpeed,
     notes,
   };
+
+  console.log(frameToSave);
 
   return (
     <ScreenBackground>
@@ -145,7 +147,7 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
               onSelect={(item) => setAperture(item.aperture)}
               style={{ marginTop: theme.spacing.s12 }}
             />
-            {isPrimeLens ? (
+            {/* {isPrimeLens ? (
               <TextInput
                 label="Focal length (mm)"
                 value={`${focalLength}`}
@@ -156,16 +158,16 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
                 inputProps={{ keyboardType: "number-pad" }}
                 style={{ marginTop: theme.spacing.s12 }}
               />
-            ) : (
-              <HorizontalScrollPicker
-                label="Focal length (mm)"
-                items={focalLengths}
-                keyExtractor={(i) => i.label}
-                renderDisplayValue={(item) => item.label}
-                onSelect={(item) => setFocalLength(item.focalLength)}
-                style={{ marginTop: theme.spacing.s12 }}
-              />
-            )}
+            ) : ( */}
+            <HorizontalScrollPicker
+              label="Focal length (mm)"
+              items={focalLengths}
+              keyExtractor={(i) => i.label}
+              renderDisplayValue={(item) => item.label}
+              onSelect={(item) => setFocalLength(item.focalLength)}
+              style={{ marginTop: theme.spacing.s12 }}
+            />
+            {/* )} */}
             <TextInput
               label="Notes (optional)"
               value={notes}
