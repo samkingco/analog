@@ -60,15 +60,15 @@ const initialState: CameraBagState = {
     },
     lens_3: {
       id: "lens_3",
-      name: "Mamiya 80mm f/4",
+      name: "Mamiya 80-150mm f/4",
       minFocalLength: 80,
-      maxFocalLength: 90,
+      maxFocalLength: 150,
       minAperture: 4,
       maxAperture: 22,
     },
     lens_4: {
       id: "lens_4",
-      name: "Mamiya 150mm f/4.5",
+      name: "Mamiya 150-200mm f/4.5",
       minFocalLength: 150,
       maxFocalLength: 200,
       minAperture: 4.5,
