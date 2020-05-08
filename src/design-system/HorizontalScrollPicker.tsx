@@ -23,29 +23,23 @@ interface HorizontalScrollPickerProps<T> {
   initialIndex?: number;
 }
 
-interface ItemLayoutMap {
-  [key: string]: {
-    index: number;
-    x: number;
-    width: number;
-  };
+interface ItemLayout {
+  index: number;
+  key: string | number;
+  x: number;
+  width: number;
 }
 
 function makeInitialItemLayouts<T>(
   items: HorizontalScrollPickerProps<T>["items"],
   keyExtractor: HorizontalScrollPickerProps<T>["keyExtractor"],
-): ItemLayoutMap {
-  return items.reduce((map, item, index) => {
+): Map<number, ItemLayout> {
+  const layoutMap = new Map();
+  items.forEach((item, index) => {
     const key = keyExtractor(item, index);
-    return {
-      ...map,
-      [key]: {
-        index,
-        x: 0,
-        width: 0,
-      },
-    };
-  }, {});
+    layoutMap.set(index, { index, key, x: 0, width: 0 });
+  });
+  return layoutMap;
 }
 
 export function HorizontalScrollPicker<T>(
@@ -63,31 +57,23 @@ export function HorizontalScrollPicker<T>(
     [props.items, props.keyExtractor],
   );
 
-  const lastItemKey = useMemo(
-    () =>
-      props.keyExtractor(
-        props.items[props.items.length - 1],
-        props.items.length - 1,
-      ),
-    [props.keyExtractor, props.items],
-  );
-
-  const [itemLayouts, setItemLayouts] = useState<ItemLayoutMap>(
+  const [itemLayouts, setItemLayouts] = useState<Map<number, ItemLayout>>(
     getInitialItemLayouts,
   );
 
-  const lastItem = itemLayouts[lastItemKey];
+  const lastItem = itemLayouts.get(props.items.length - 1);
   const totalItemWidths = lastItem ? lastItem.x + lastItem.width : 0;
   const lastItemWidth = lastItem ? lastItem.width : 0;
 
-  const hasMeasuredAll = useMemo(
-    () =>
-      Object.keys(itemLayouts).every((key) => {
-        const item = itemLayouts[key];
-        return item.width > 0;
-      }),
-    [itemLayouts],
-  );
+  const hasMeasuredAll = useMemo(() => {
+    let measuredCount = 0;
+    for (let [_, layout] of itemLayouts) {
+      if (layout.width > 0) {
+        measuredCount = measuredCount + 1;
+      }
+    }
+    return measuredCount === itemLayouts.size;
+  }, [itemLayouts]);
 
   useEffect(() => {
     setItemLayouts(getInitialItemLayouts);
@@ -107,16 +93,21 @@ export function HorizontalScrollPicker<T>(
 
   function getSelectedItem() {
     const scrollOffset = (animatedScrollX as any)._value;
-    const closestItemToEdgeKey = Object.keys(itemLayouts).reduce(
-      (prevKey, currKey) => {
-        const prev = itemLayouts[prevKey];
-        const curr = itemLayouts[currKey];
-        return Math.abs(curr.x - scrollOffset) < Math.abs(prev.x - scrollOffset)
-          ? currKey
-          : prevKey;
-      },
-    );
-    return itemLayouts[closestItemToEdgeKey];
+    let closestItemToEdge = undefined;
+
+    for (let [_, layout] of itemLayouts) {
+      if (!closestItemToEdge) {
+        closestItemToEdge = layout;
+      }
+      if (
+        Math.abs(layout.x - scrollOffset) <
+        Math.abs(closestItemToEdge.x - scrollOffset)
+      ) {
+        closestItemToEdge = layout;
+      }
+    }
+
+    return closestItemToEdge;
   }
 
   function onScrollStop() {
@@ -190,18 +181,13 @@ export function HorizontalScrollPicker<T>(
                 return null;
               }
 
-              const layout = itemLayouts[key];
+              const layout = itemLayouts.get(index);
 
               let opacityInterpolation;
               const opacityTrail = 50;
               let opacityBase = 0.4;
 
-              const canAnimate = useMemo(
-                () => layout && hasMeasuredAll && totalItemWidths > 0,
-                [layout, hasMeasuredAll, totalItemWidths],
-              );
-
-              if (canAnimate) {
+              if (layout && hasMeasuredAll && totalItemWidths > 0) {
                 const startOffset = layout.x;
                 const endOffset = layout.x + layout.width;
 
@@ -233,10 +219,9 @@ export function HorizontalScrollPicker<T>(
                     if (width === 0) {
                       return;
                     }
-                    setItemLayouts((state) => ({
-                      ...state,
-                      [key]: { index, x, width },
-                    }));
+                    setItemLayouts(
+                      new Map(itemLayouts.set(index, { index, key, x, width })),
+                    );
                   }}
                   style={[
                     styles.item,
@@ -244,7 +229,9 @@ export function HorizontalScrollPicker<T>(
                       opacity: opacityInterpolation || opacityBase,
                     },
                   ]}>
-                  <Fade isVisible={layout && hasMeasuredAll} minOpacity={0.2}>
+                  <Fade
+                    isVisible={Boolean(layout && hasMeasuredAll)}
+                    minOpacity={0.2}>
                     <Headline>{content}</Headline>
                   </Fade>
                 </Animated.View>
