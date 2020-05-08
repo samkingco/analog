@@ -81,6 +81,7 @@ export const TextInput = (props: Props) => {
             style={styles.input}
             placeholderTextColor={theme.colors.text.subtle}
             onChangeText={props.onChange}
+            multiline={false}
             returnKeyType={
               props.inputProps &&
               (props.inputProps.keyboardType === "number-pad" ||
@@ -96,21 +97,21 @@ export const TextInput = (props: Props) => {
   );
 };
 
-const borderWidth = 2;
-
 const styles = StyleSheet.create({
   inputWrapper: {
-    borderWidth: borderWidth,
+    borderWidth: 2,
     borderRadius: theme.misc.borderRadius,
-    paddingVertical: theme.spacing.s12,
-    paddingHorizontal: theme.spacing.s12,
+    paddingVertical: theme.spacing.s12 - 2,
+    paddingHorizontal: theme.spacing.s12 - 2,
     backgroundColor: theme.colors.background.interactive,
   },
   input: {
     padding: 0,
+    paddingTop: theme.spacing.s4 / 2,
+    paddingBottom: theme.spacing.s4,
     fontFamily: theme.fonts.normal,
     fontSize: theme.fontSizes.m,
-    lineHeight: theme.fontSizes.m * 1.2,
+    lineHeight: theme.fontSizes.m * 1.3,
     color: theme.colors.text.default,
   },
   inputContent: {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TouchableOpacity, StyleSheet, View } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -19,6 +19,12 @@ import { CameraLens, cameraBagSelectors } from "../store/camera-bag";
 import { CheckIcon } from "../design-system/icons/CheckIcon";
 import { SectionTitle } from "../design-system/SectionTitle";
 import { ScrollViewPadding } from "../components/ScrollViewPadding";
+import { HorizontalScrollPicker } from "../design-system/HorizontalScrollPicker";
+import {
+  shutterSpeeds,
+  apertures,
+  makeFocalLengths,
+} from "../util/camera-settings";
 
 type AddFrameScreenRouteProp = RouteProp<RootStackParamList, "AddFrame">;
 type AddFrameNavigationProp = StackNavigationProp<
@@ -60,24 +66,42 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
   const dispatch = useDispatch();
   const { rollId } = route.params;
   const roll = useSelector((s) => rollSelectors.rollById(s, rollId));
+
   const availableLenses = useSelector((s) =>
     cameraBagSelectors.lensesForCamera(s, roll ? roll.cameraId : ""),
   );
   const [selectedLensId, setSelectedLensId] = useState(
     availableLenses.length > 0 ? availableLenses[0].id : "",
   );
-  const [shutterSpeed, setShutterSpeed] = useState("");
-  const [aperture, setAperture] = useState("");
-  const [focalLength, setFocalLength] = useState("");
+  const selectedLens = availableLenses.find((i) => i.id === selectedLensId);
+  const isPrimeLens =
+    selectedLens && selectedLens.minFocalLength === selectedLens.maxFocalLength;
+  const focalLengths = makeFocalLengths(
+    selectedLens ? selectedLens.minFocalLength : 0,
+    selectedLens ? selectedLens.maxFocalLength : 0,
+  );
+
+  const [shutterSpeed, setShutterSpeed] = useState({
+    shutterWhole: 0,
+    shutterFraction: 0,
+  });
+  const [aperture, setAperture] = useState(0);
+  const [focalLength, setFocalLength] = useState(
+    selectedLens && isPrimeLens ? selectedLens.minFocalLength : 0,
+  );
   const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    const selectedFocalLength =
+      selectedLens && isPrimeLens ? selectedLens.minFocalLength : 0;
+    setFocalLength(selectedFocalLength);
+  }, [selectedLensId]);
 
   const frameToSave = {
     lensId: selectedLensId,
-    focalLength: parseInt(focalLength, 10),
-    aperture: parseInt(aperture, 10),
-    // TODO: make the shutter thing better
-    shutterWhole: parseInt(shutterSpeed.split("/")[0], 10),
-    shutterFraction: parseInt(shutterSpeed.split("/")[1], 10),
+    focalLength,
+    aperture,
+    ...shutterSpeed,
     notes,
   };
 
@@ -101,26 +125,47 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
             />
           </ContentBlock>
           <ContentBlock>
-            <TextInput
+            <HorizontalScrollPicker
               label="Shutter speed"
-              value={shutterSpeed}
-              onChange={setShutterSpeed}
-              placeholder={"1/250"}
+              items={shutterSpeeds}
+              keyExtractor={(i) => i.label}
+              renderDisplayValue={(item) => item.label}
+              onSelect={(item) =>
+                setShutterSpeed({
+                  shutterWhole: item.shutterWhole,
+                  shutterFraction: item.shutterFraction,
+                })
+              }
             />
-            <TextInput
+            <HorizontalScrollPicker
               label="Aperture"
-              value={aperture}
-              onChange={setAperture}
-              placeholder={"0"}
+              items={apertures}
+              keyExtractor={(i) => i.label}
+              renderDisplayValue={(item) => item.label}
+              onSelect={(item) => setAperture(item.aperture)}
               style={{ marginTop: theme.spacing.s12 }}
             />
-            <TextInput
-              label="Focal length"
-              value={focalLength}
-              onChange={setFocalLength}
-              placeholder={"0"}
-              style={{ marginTop: theme.spacing.s12 }}
-            />
+            {isPrimeLens ? (
+              <TextInput
+                label="Focal length (mm)"
+                value={`${focalLength}`}
+                onChange={(value) =>
+                  value ? setFocalLength(parseInt(value, 10)) : 0
+                }
+                placeholder={"0"}
+                inputProps={{ keyboardType: "number-pad" }}
+                style={{ marginTop: theme.spacing.s12 }}
+              />
+            ) : (
+              <HorizontalScrollPicker
+                label="Focal length (mm)"
+                items={focalLengths}
+                keyExtractor={(i) => i.label}
+                renderDisplayValue={(item) => item.label}
+                onSelect={(item) => setFocalLength(item.focalLength)}
+                style={{ marginTop: theme.spacing.s12 }}
+              />
+            )}
             <TextInput
               label="Notes (optional)"
               value={notes}

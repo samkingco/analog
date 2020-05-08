@@ -1,18 +1,24 @@
 import React from "react";
-import { Text, StyleSheet } from "react-native";
+import { Text, StyleSheet, StyleProp, TextStyle } from "react-native";
 import { theme, Theme } from "../theme";
 
 interface HeadlineProps {
   children: React.ReactNode;
+  style?: StyleProp<TextStyle>;
   color?: keyof Theme["colors"]["text"];
 }
 
-export function Headline({ color = "default", ...props }: HeadlineProps) {
+export function Headline({
+  color = "default",
+  style,
+  ...props
+}: HeadlineProps) {
   const textStyle = StyleSheet.flatten([
     styles.text,
     {
       color: theme.colors.text[color],
     },
+    style,
   ]);
 
   return <Text style={textStyle} {...props} />;

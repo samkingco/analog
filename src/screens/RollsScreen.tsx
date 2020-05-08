@@ -6,7 +6,6 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { format } from "date-fns";
 import { RootStackParamList } from "../App";
 import { rollSelectors, ComputedRoll } from "../store/rolls";
-import { SafeAreaView } from "../components/SafeAreaView";
 import { Headline } from "../design-system/Headline";
 import { ContentBlock } from "../design-system/ContentBlock";
 import { SectionTitle } from "../design-system/SectionTitle";
@@ -86,6 +85,10 @@ export function RollsScreen({ navigation }: Props) {
   const { shooting, complete, processed } = useSelector(
     rollSelectors.rollsListGrouped,
   );
+
+  const onSelect = (...args: any) => {
+    console.log("selected", args);
+  };
 
   return (
     <ScreenBackground>
