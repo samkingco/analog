@@ -150,7 +150,7 @@ export function RollDetailScreen({ route, navigation }: Props) {
   }
   if (roll.dateCompleted) {
     dateInfo.push({
-      label: `Completed ${format(roll.dateCompleted, "do MMMM")}`,
+      label: `Finished ${format(roll.dateCompleted, "do MMMM")}`,
     });
   }
   if (roll.dateProcessed) {
