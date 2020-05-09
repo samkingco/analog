@@ -6,22 +6,14 @@ import { Title } from "../design-system/Title";
 import { theme } from "../theme";
 import { Icon } from "../design-system/Icon";
 import { ArrowLeftIcon } from "../design-system/icons/ArrowLeftIcon";
-import { CloseIcon } from "../design-system/icons/CloseIcon";
 import { CameraBagIcon } from "../design-system/icons/CameraBagIcon";
 
 interface Props extends StackHeaderProps {
   isModal?: boolean;
   isFirstModalView?: boolean;
-  parentNavigation?: StackHeaderProps["navigation"];
 }
 
-export function NavigationHeader({
-  scene,
-  previous,
-  navigation,
-  isModal = false,
-  parentNavigation,
-}: Props) {
+export function NavigationHeader({ scene, previous, navigation }: Props) {
   const { options } = scene.descriptor;
   const title =
     options.headerTitle !== undefined
@@ -30,19 +22,10 @@ export function NavigationHeader({
       ? options.title
       : scene.route.name;
 
-  const showCloseButton = Boolean(isModal && !previous);
-
   return (
-    <View
-      style={[styles.wrapper, { paddingTop: isModal ? 0 : ifIphoneX(44, 0) }]}
-    >
+    <View style={[styles.wrapper, { paddingTop: ifIphoneX(44, 0) }]}>
       <View style={styles.topBar}>
         <View>
-          {showCloseButton && parentNavigation ? (
-            <TouchableOpacity onPress={parentNavigation.goBack}>
-              <Icon type={CloseIcon} />
-            </TouchableOpacity>
-          ) : undefined}
           {previous ? (
             <TouchableOpacity onPress={navigation.goBack}>
               <Icon type={ArrowLeftIcon} />
@@ -50,7 +33,7 @@ export function NavigationHeader({
           ) : undefined}
         </View>
         <View>
-          {!showCloseButton && !previous ? (
+          {!previous ? (
             <TouchableOpacity onPress={() => navigation.navigate("CameraBag")}>
               <Icon type={CameraBagIcon} />
             </TouchableOpacity>

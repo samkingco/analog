@@ -2,33 +2,27 @@ import React from "react";
 import { Provider } from "react-redux";
 import { StatusBar } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import {
-  createStackNavigator,
-  TransitionPresets,
-} from "@react-navigation/stack";
+import { createStackNavigator } from "@react-navigation/stack";
 import { store } from "./store";
-import { RollsScreen } from "./screens/RollsScreen";
-import { CameraBagScreen } from "./screens/CameraBagScreen";
 import { NavigationHeader } from "./components/NavigationHeader";
+import { RollsScreen } from "./screens/RollsScreen";
+import { AddRollChooseFilmStockScreen } from "./screens/AddRollChooseFilmStock";
+import { AddRollChooseCameraScreen } from "./screens/AddRollChooseCameraScreen";
 import { RollDetailScreen } from "./screens/RollDetailScreen";
-import {
-  AddRollScreen,
-  ChooseFilmStockScreen,
-  ChooseCameraScreen,
-} from "./screens/AddRollScreen";
 import { FrameDetailScreen } from "./screens/FrameDetailScreen";
 import { AddFrameScreen } from "./screens/AddFrameScreen";
+import { CameraBagScreen } from "./screens/CameraBagScreen";
+import { AddLensScreen } from "./screens/AddLensScreen";
 
 export type RootStackParamList = {
   Rolls: undefined;
   RollDetail: { rollId: string };
-  AddRoll: undefined;
   AddRollChooseFilmStock: undefined;
   AddRollChooseCamera: undefined;
-  AddRollExtraInfo: undefined;
   FrameDetail: { frameId: string; rollId: string };
   AddFrame: { rollId: string };
   CameraBag: undefined;
+  AddLens: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -51,23 +45,15 @@ export const App = () => {
           <Stack.Screen name="RollDetail" component={RollDetailScreen} />
           <Stack.Screen name="FrameDetail" component={FrameDetailScreen} />
           <Stack.Screen
-            name="AddRoll"
-            component={AddRollScreen}
-            options={{
-              header: () => null,
-              ...TransitionPresets.ModalPresentationIOS,
-            }}
-          />
-          <Stack.Screen
             name="AddRollChooseFilmStock"
-            component={ChooseFilmStockScreen}
+            component={AddRollChooseFilmStockScreen}
             options={{
               title: "Choose film",
             }}
           />
           <Stack.Screen
             name="AddRollChooseCamera"
-            component={ChooseCameraScreen}
+            component={AddRollChooseCameraScreen}
             options={{
               title: "Choose camera",
             }}
@@ -83,8 +69,14 @@ export const App = () => {
             name="CameraBag"
             component={CameraBagScreen}
             options={{
-              header: () => null,
-              ...TransitionPresets.ModalPresentationIOS,
+              title: "Camera bag",
+            }}
+          />
+          <Stack.Screen
+            name="AddLens"
+            component={AddLensScreen}
+            options={{
+              title: "Add lens",
             }}
           />
         </Stack.Navigator>
