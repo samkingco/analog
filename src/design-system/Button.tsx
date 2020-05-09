@@ -8,12 +8,12 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
 } from "react-native";
-import { theme } from "../theme";
+import { theme, Theme } from "../theme";
 
 interface Props extends TouchableOpacityProps {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
-  variant?: "primary" | "secondary";
+  variant?: keyof Theme["variants"]["button"];
 }
 
 export function Button({
@@ -22,27 +22,26 @@ export function Button({
   style,
   ...props
 }: Props) {
-  const buttonWrapperStyles: StyleProp<ViewStyle>[] = [
-    style,
+  const buttonWrapperStyles = StyleSheet.flatten([
     styles.wrapperBase,
-  ];
-  const buttonTextStyles: StyleProp<TextStyle>[] = [styles.textBase];
-
-  if (variant === "primary") {
-    buttonWrapperStyles.push(styles.wrapperPrimary);
-    buttonTextStyles.push(styles.textPrimary);
-  }
-
-  if (variant === "secondary") {
-    buttonWrapperStyles.push(styles.wrapperSecondary);
-    buttonTextStyles.push(styles.textSecondary);
-  }
+    style,
+    {
+      backgroundColor: theme.variants.button[variant].backgroundColor,
+    },
+  ]);
+  const buttonTextStyles = StyleSheet.flatten([
+    styles.textBase,
+    {
+      color: theme.variants.button[variant].color,
+    },
+  ]);
 
   return (
     <TouchableOpacity
       style={buttonWrapperStyles}
       activeOpacity={variant === "primary" ? 0.8 : 0.4}
-      {...props}>
+      {...props}
+    >
       <Text style={buttonTextStyles}>{children}</Text>
     </TouchableOpacity>
   );
@@ -54,10 +53,10 @@ const styles = StyleSheet.create({
     borderRadius: theme.misc.borderRadius,
   },
   wrapperPrimary: {
-    backgroundColor: theme.colors.button.primary.background,
+    backgroundColor: theme.variants.button.primary.backgroundColor,
   },
   wrapperSecondary: {
-    backgroundColor: theme.colors.button.secondary.background,
+    backgroundColor: theme.variants.button.secondary.backgroundColor,
   },
   textBase: {
     fontFamily: theme.fonts.bold,
@@ -66,9 +65,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   textPrimary: {
-    color: theme.colors.button.primary.text,
+    color: theme.variants.button.primary.color,
   },
   textSecondary: {
-    color: theme.colors.button.secondary.text,
+    color: theme.variants.button.secondary.color,
   },
 });

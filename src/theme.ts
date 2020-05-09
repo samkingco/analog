@@ -23,20 +23,11 @@ export const theme = {
       inverted: "#FFFFFF",
       interactive: "#1E2124",
     },
-    button: {
-      primary: {
-        background: "#FFFFFF",
-        text: "#151719",
-      },
-      secondary: {
-        background: "#2C3035",
-        text: "#FFFFFF",
-      },
-    },
     text: {
       default: "#FFFFFF",
       inverted: "#151719",
       subtle: "#9099A2",
+      invertedSubtle: "#5D666F",
     },
     icon: {
       default: "#FFFFFF",
@@ -47,6 +38,22 @@ export const theme = {
       default: "#9099A2",
       dark: "#151719",
       light: "#E9EBEC",
+    },
+  },
+  variants: {
+    button: {
+      primary: {
+        backgroundColor: "#FFFFFF",
+        color: "#151719",
+      },
+      secondary: {
+        backgroundColor: "#2C3035",
+        color: "#FFFFFF",
+      },
+      danger: {
+        backgroundColor: "#FF4747",
+        color: "#FFFFFF",
+      },
     },
   },
   misc: {

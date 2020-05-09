@@ -1,25 +1,23 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { ScrollView, TouchableOpacity, StyleSheet, View } from "react-native";
+import { ScrollView } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { format } from "date-fns";
 import { RootStackParamList } from "../App";
-import { rollSelectors, ComputedRoll } from "../store/rolls";
-import { Headline } from "../design-system/Headline";
+import { rollSelectors } from "../store/rolls";
 import { ContentBlock } from "../design-system/ContentBlock";
 import { SectionTitle } from "../design-system/SectionTitle";
 import { List } from "../design-system/List";
 import { theme } from "../theme";
-import { Subhead } from "../design-system/Subhead";
-import { ChevronRightIcon } from "../design-system/icons/ChevronRightIcon";
-import { Icon } from "../design-system/Icon";
 import { Button } from "../design-system/Button";
 import { ScrollViewPadding } from "../components/ScrollViewPadding";
 import { ScreenBackground } from "../components/ScreenBackground";
+import { ListItem } from "../design-system/ListItem";
+import { Subhead } from "../design-system/Subhead";
+import { format } from "date-fns";
 
-type RollsScreenRouteProp = RouteProp<RootStackParamList, "Rolls">;
-type RollsScreenNavigationProp = StackNavigationProp<
+export type RollsScreenRouteProp = RouteProp<RootStackParamList, "Rolls">;
+export type RollsScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   "Rolls"
 >;
@@ -29,66 +27,10 @@ type Props = {
   navigation: RollsScreenNavigationProp;
 };
 
-interface RollListItemProps {
-  type: "shooting" | "complete" | "processed";
-  item: ComputedRoll;
-  navigation: RollsScreenNavigationProp;
-  isHighlighted?: boolean;
-}
-
-function RollListItem({
-  type,
-  item,
-  navigation,
-  isHighlighted,
-}: RollListItemProps) {
-  return (
-    <TouchableOpacity
-      activeOpacity={isHighlighted ? 0.8 : 0.4}
-      style={[
-        styles.listItemBase,
-        isHighlighted ? styles.listItemHighlighted : styles.listItemDefault,
-      ]}
-      onPress={() => navigation.navigate("RollDetail", { rollId: item.id })}>
-      <View style={styles.listItemContent}>
-        {type === "shooting" && (
-          <Subhead>
-            <Subhead color={isHighlighted ? "inverted" : undefined}>
-              {item.framesTaken}
-            </Subhead>{" "}
-            / {item.maxFrameCount}
-          </Subhead>
-        )}
-        {type === "complete" && item.dateCompleted && (
-          <Subhead color="subtle">
-            {format(item.dateCompleted, "do MMMM")}
-          </Subhead>
-        )}
-        {type === "processed" && item.dateProcessed && (
-          <Subhead color="subtle">
-            {format(item.dateProcessed, "do MMMM")}
-          </Subhead>
-        )}
-        <Headline color={isHighlighted ? "inverted" : undefined}>
-          {item.filmStockName}
-        </Headline>
-        <Subhead>{item.cameraName}</Subhead>
-      </View>
-      <View>
-        <Icon type={ChevronRightIcon} color="subtle" />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
 export function RollsScreen({ navigation }: Props) {
   const { shooting, complete, processed } = useSelector(
     rollSelectors.rollsListGrouped,
   );
-
-  const onSelect = (...args: any) => {
-    console.log("selected", args);
-  };
 
   return (
     <ScreenBackground>
@@ -101,11 +43,19 @@ export function RollsScreen({ navigation }: Props) {
             keyExtractor={(i) => i.id}
             dividerColor="light"
             renderItem={(item) => (
-              <RollListItem
-                type="shooting"
-                item={item}
-                navigation={navigation}
+              <ListItem
+                pretitle={
+                  <Subhead color="invertedSubtle">
+                    <Subhead color="inverted">{item.framesTaken}</Subhead> /{" "}
+                    {item.maxFrameCount}
+                  </Subhead>
+                }
+                title={item.filmStockName}
+                subtitle={item.cameraName}
                 isHighlighted={true}
+                onPress={() =>
+                  navigation.navigate("RollDetail", { rollId: item.id })
+                }
               />
             )}
           />
@@ -113,22 +63,30 @@ export function RollsScreen({ navigation }: Props) {
             variant="secondary"
             onPress={() => {
               navigation.navigate("AddRollChooseFilmStock");
-            }}>
+            }}
+          >
             Start a new roll
           </Button>
         </ContentBlock>
 
         {complete.length > 0 ? (
           <ContentBlock>
-            <SectionTitle>Complete</SectionTitle>
+            <SectionTitle>Unprocessed</SectionTitle>
             <List
               items={complete}
               keyExtractor={(i) => i.id}
               renderItem={(item) => (
-                <RollListItem
-                  type="complete"
-                  item={item}
-                  navigation={navigation}
+                <ListItem
+                  pretitle={
+                    item.dateCompleted
+                      ? format(item.dateCompleted, "do MMMM")
+                      : ""
+                  }
+                  title={item.filmStockName}
+                  subtitle={item.cameraName}
+                  onPress={() =>
+                    navigation.navigate("RollDetail", { rollId: item.id })
+                  }
                 />
               )}
             />
@@ -142,10 +100,17 @@ export function RollsScreen({ navigation }: Props) {
               items={processed}
               keyExtractor={(i) => i.id}
               renderItem={(item) => (
-                <RollListItem
-                  type="processed"
-                  item={item}
-                  navigation={navigation}
+                <ListItem
+                  pretitle={
+                    item.dateProcessed
+                      ? format(item.dateProcessed, "do MMMM")
+                      : ""
+                  }
+                  title={item.filmStockName}
+                  subtitle={item.cameraName}
+                  onPress={() =>
+                    navigation.navigate("RollDetail", { rollId: item.id })
+                  }
                 />
               )}
             />
@@ -156,20 +121,3 @@ export function RollsScreen({ navigation }: Props) {
     </ScreenBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  listItemBase: {
-    padding: theme.spacing.s12,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  listItemDefault: {
-    backgroundColor: theme.colors.background.interactive,
-  },
-  listItemHighlighted: {
-    backgroundColor: theme.colors.background.inverted,
-  },
-  listItemContent: {
-    flex: 1,
-  },
-});

@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { TouchableOpacity, StyleSheet, View } from "react-native";
+import React, { useMemo, useEffect, useState } from "react";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../App";
@@ -7,22 +6,22 @@ import { ScreenBackground } from "../components/ScreenBackground";
 import { KeyboardAvoidingView } from "../components/KeyboardAvoidingView";
 import { useSelector, useDispatch } from "react-redux";
 import { ContentBlock } from "../design-system/ContentBlock";
-import { Headline } from "../design-system/Headline";
 import { theme } from "../theme";
-import { Icon } from "../design-system/Icon";
 import { List } from "../design-system/List";
 import { ScrollView } from "react-native-gesture-handler";
 import { TextInput } from "../design-system/TextInput";
 import { Button } from "../design-system/Button";
-import { rollSelectors, addFrameToRoll } from "../store/rolls";
-import { CameraLens, cameraBagSelectors } from "../store/camera-bag";
+import { rollSelectors, updateTempFrame, saveTempFrame } from "../store/rolls";
+import { cameraBagSelectors } from "../store/camera-bag";
 import { CheckIcon } from "../design-system/icons/CheckIcon";
 import { SectionTitle } from "../design-system/SectionTitle";
 import { ScrollViewPadding } from "../components/ScrollViewPadding";
 import { HorizontalScrollPicker } from "../design-system/HorizontalScrollPicker";
+import { ListItem } from "../design-system/ListItem";
+import { BlankIcon } from "../design-system/icons/BlankIcon";
 import {
-  shutterSpeeds,
-  apertures,
+  makeShutterSpeeds,
+  makeApertures,
   makeFocalLengths,
 } from "../util/camera-settings";
 
@@ -37,45 +36,41 @@ type AddFrameScreenProps = {
   navigation: AddFrameNavigationProp;
 };
 
-interface LensItemProps {
-  item: CameraLens;
-  navigation: AddFrameNavigationProp;
-  isSelected?: boolean;
-  onPress: () => void;
-}
-
-function LensItem({ item, navigation, isSelected, onPress }: LensItemProps) {
-  return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      style={styles.listItem}
-      onPress={onPress}>
-      <View style={styles.listItemContent}>
-        <Headline>{item.name}</Headline>
-      </View>
-      <View style={{ opacity: isSelected ? 1 : 0 }}>
-        <Icon type={CheckIcon} />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
 export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
   const dispatch = useDispatch();
   const { rollId } = route.params;
   const roll = useSelector((s) => rollSelectors.rollById(s, rollId));
+  const prevFrame = roll && roll.frames[roll.frames.length - 1];
+  const tempFrame = useSelector(rollSelectors.tempFrame);
+  const [hasChangedLens, setHasChangedLens] = useState(false);
 
-  // Get the list of lenses for this camera
+  console.log({ tempFrame });
+
+  const shutterSpeeds = useMemo(() => makeShutterSpeeds(), []);
+  const initialShutterSpeedIndex = useMemo(
+    () =>
+      shutterSpeeds.findIndex(
+        (i) => i.value === (prevFrame ? prevFrame.shutterSpeed : 1 / 125),
+      ),
+    [],
+  );
+
+  const apertures = useMemo(() => makeApertures(), []);
+  const initialApertureIndex = useMemo(
+    () =>
+      apertures.findIndex(
+        (i) => i.value === (prevFrame ? prevFrame.aperture : 8),
+      ),
+    [],
+  );
+
   const availableLenses = useSelector((s) =>
     cameraBagSelectors.lensesForCamera(s, roll ? roll.cameraId : ""),
   );
 
-  const [selectedLensId, setSelectedLensId] = useState(
-    availableLenses.length > 0 ? availableLenses[0].id : "",
-  );
-
+  const initialLensId = prevFrame ? prevFrame.lensId : availableLenses[0].id;
   const selectedLens = useSelector((s) =>
-    cameraBagSelectors.lensById(s, selectedLensId),
+    cameraBagSelectors.lensById(s, tempFrame.lensId),
   );
 
   const focalLengths = useMemo(() => {
@@ -85,29 +80,29 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
           selectedLens.maxFocalLength,
         )
       : [];
-  }, [selectedLens]);
+  }, [tempFrame.lensId]);
 
-  const isPrimeLens = Boolean(
+  const initialFocalLength = useMemo(() => {
+    const foundIndex = focalLengths.findIndex(
+      (i) => i.value === (prevFrame && prevFrame.focalLength),
+    );
+    return foundIndex === -1 ? 0 : foundIndex;
+  }, [tempFrame.lensId]);
+
+  const isSelectedLensPrime = Boolean(
     selectedLens && selectedLens.minFocalLength === selectedLens.maxFocalLength,
   );
 
-  const [shutterSpeed, setShutterSpeed] = useState({
-    shutterWhole: 0,
-    shutterFraction: 0,
-  });
-  const [aperture, setAperture] = useState(0);
-  const [focalLength, setFocalLength] = useState(
-    selectedLens ? selectedLens.minFocalLength : 0,
-  );
-  const [notes, setNotes] = useState("");
+  useEffect(() => {
+    dispatch(updateTempFrame({ lensId: initialLensId }));
+  }, []);
 
-  const frameToSave = {
-    lensId: selectedLensId,
-    focalLength,
-    aperture,
-    ...shutterSpeed,
-    notes,
-  };
+  useEffect(() => {
+    const focalLength = selectedLens
+      ? selectedLens.minFocalLength
+      : availableLenses[0].minFocalLength;
+    dispatch(updateTempFrame({ focalLength }));
+  }, [selectedLens]);
 
   return (
     <ScreenBackground>
@@ -119,11 +114,15 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
               items={availableLenses}
               keyExtractor={(i) => i.id}
               renderItem={(item) => (
-                <LensItem
-                  item={item}
-                  navigation={navigation}
-                  onPress={() => setSelectedLensId(item.id)}
-                  isSelected={selectedLensId === item.id}
+                <ListItem
+                  title={item.name}
+                  rightIconType={
+                    tempFrame.lensId === item.id ? CheckIcon : BlankIcon
+                  }
+                  onPress={() => {
+                    setHasChangedLens(true);
+                    dispatch(updateTempFrame({ lensId: item.id }));
+                  }}
                 />
               )}
             />
@@ -133,39 +132,43 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
             <HorizontalScrollPicker
               label="Shutter speed"
               items={shutterSpeeds}
-              initialIndex={32}
+              initialIndex={initialShutterSpeedIndex}
               keyExtractor={(i) => i.label}
               renderDisplayValue={(item) => item.label}
-              onSelect={(item) =>
-                setShutterSpeed({
-                  shutterWhole: item.shutterWhole,
-                  shutterFraction: item.shutterFraction,
-                })
-              }
+              onSelect={(item) => {
+                dispatch(updateTempFrame({ shutterSpeed: item.value }));
+              }}
             />
             <HorizontalScrollPicker
               label="Aperture"
               items={apertures}
-              initialIndex={16}
+              initialIndex={initialApertureIndex}
               keyExtractor={(i) => i.label}
               renderDisplayValue={(item) => item.label}
-              onSelect={(item) => setAperture(item.aperture)}
+              onSelect={(item) => {
+                dispatch(updateTempFrame({ aperture: item.value }));
+              }}
               style={{ marginTop: theme.spacing.s12 }}
             />
-            {!isPrimeLens ? (
+            {!isSelectedLensPrime && focalLengths.length > 0 ? (
               <HorizontalScrollPicker
                 label="Focal length (mm)"
                 items={focalLengths}
+                initialIndex={hasChangedLens ? 0 : initialFocalLength}
                 keyExtractor={(i) => i.label}
                 renderDisplayValue={(item) => item.label}
-                onSelect={(item) => setFocalLength(item.focalLength)}
+                onSelect={(item) => {
+                  dispatch(updateTempFrame({ focalLength: item.value }));
+                }}
                 style={{ marginTop: theme.spacing.s12 }}
               />
             ) : null}
             <TextInput
               label="Notes (optional)"
-              value={notes}
-              onChange={setNotes}
+              value={tempFrame.notes || ""}
+              onChange={(notes) => {
+                dispatch(updateTempFrame({ notes }));
+              }}
               placeholder={"Something to identify later"}
               style={{ marginTop: theme.spacing.s12 }}
             />
@@ -173,9 +176,10 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
           <ContentBlock>
             <Button
               onPress={() => {
-                dispatch(addFrameToRoll(frameToSave, rollId));
+                dispatch(saveTempFrame(rollId));
                 navigation.pop();
-              }}>
+              }}
+            >
               Save
             </Button>
           </ContentBlock>
@@ -185,18 +189,3 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
     </ScreenBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  listItem: {
-    padding: theme.spacing.s12,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: theme.colors.background.interactive,
-  },
-  listItemContent: {
-    flex: 1,
-  },
-});

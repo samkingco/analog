@@ -61,14 +61,16 @@ export const TextInput = (props: Props) => {
   return (
     <TouchableWithoutFeedback onPress={focusInput}>
       <View
-        style={[props.style, styles.inputWrapper, getInputStyles(isFocused)]}>
+        style={[props.style, styles.inputWrapper, getInputStyles(isFocused)]}
+      >
         <View style={styles.inputContent}>
           {props.label ? (
             <Subhead
               style={{
                 lineHeight: theme.fontSizes.m,
                 marginBottom: theme.spacing.s4 - 1,
-              }}>
+              }}
+            >
               {props.label}
             </Subhead>
           ) : null}

@@ -35,7 +35,8 @@ export function Fade({
           inputRange: [0, 1],
           outputRange: [0, 1],
         }),
-      }}>
+      }}
+    >
       {children}
     </Animated.View>
   );

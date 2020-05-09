@@ -73,10 +73,14 @@ export function HorizontalScrollPicker<T>(
   }
 
   useEffect(() => {
+    scrollToIndex(props.initialIndex ? props.initialIndex : 0, true);
+  }, [props.items]);
+
+  useEffect(() => {
     if (props.initialIndex) {
       scrollToIndex(props.initialIndex, false);
     }
-  }, [props.initialIndex]);
+  }, [props.initialIndex, props.items]);
 
   useEffect(() => {
     ReactNativeHapticFeedback.trigger("impactLight", {
@@ -92,7 +96,8 @@ export function HorizontalScrollPicker<T>(
         <Subhead
           style={{
             lineHeight: theme.fontSizes.m,
-          }}>
+          }}
+        >
           {props.label}
         </Subhead>
       </View>
@@ -100,7 +105,8 @@ export function HorizontalScrollPicker<T>(
         <Headline
           style={{
             lineHeight: theme.fontSizes.m,
-          }}>
+          }}
+        >
           {itemDisplayValues[selectedIndex]}
         </Headline>
       </View>
@@ -121,7 +127,8 @@ export function HorizontalScrollPicker<T>(
         snapToInterval={TICK_PAGE_SIZE}
         decelerationRate="fast"
         scrollEventThrottle={16}
-        bounces={true}>
+        bounces={true}
+      >
         {ticks.map((tick) => (
           <View
             style={[

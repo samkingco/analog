@@ -1,72 +1,90 @@
-const shutterSpeedStrs = [
-  "30s",
-  "25s",
-  "20s",
-  "15s",
-  "13s",
-  "10s",
-  "8s",
-  "6s",
-  "5s",
-  "4s",
-  "3.2s",
-  "2.5s",
-  "2s",
-  "1.6s",
-  "1.3s",
-  "1s",
-  "0.8s",
-  "0.6s",
-  "0.5s",
-  "0.4s",
-  "0.3s",
-  "1/4",
-  "1/5",
-  "1/6",
-  "1/8",
-  "1/10",
-  "1/13",
-  "1/15",
-  "1/25",
-  "1/30",
-  "1/40",
-  "1/50",
-  "1/60",
-  "1/80",
-  "1/100",
-  "1/125",
-  "1/160",
-  "1/200",
-  "1/250",
-  "1/320",
-  "1/400",
-  "1/500",
-  "1/640",
-  "1/800",
-  "1/1000",
-  "1/1250",
-  "1/1600",
-  "1/2000",
-  "1/2500",
-  "1/3200",
-  "1/4000",
-  "1/5000",
-  "1/6400",
-  "1/8000",
+export interface MetaValue {
+  value: number;
+  label: string;
+}
+
+const shutterSpeedsFullStops = [
+  30,
+  15,
+  8,
+  4,
+  2,
+  1,
+  1 / 2,
+  1 / 4,
+  1 / 8,
+  1 / 15,
+  1 / 30,
+  1 / 60,
+  1 / 125,
+  1 / 250,
+  1 / 500,
+  1 / 1000,
+  1 / 2000,
+  1 / 4000,
+  1 / 8000,
 ];
 
-export const shutterSpeeds = shutterSpeedStrs.map((str) => {
-  const [whole, fraction] = str.split("/");
-  const shutterWhole = Number(whole.replace(/s/g, ""));
-  const shutterFraction = fraction ? Number(fraction) : 0;
-  return {
-    shutterWhole,
-    shutterFraction,
-    label: str,
-  };
-});
+const shutterSpeedsThirdStops = [
+  30,
+  25,
+  20,
+  15,
+  13,
+  10,
+  8,
+  6,
+  5,
+  4,
+  3.2,
+  2.5,
+  2,
+  1.6,
+  1.3,
+  1,
+  1 / 1.25,
+  1 / 1.6,
+  1 / 2,
+  1 / 2.5,
+  1 / 3.3,
+  1 / 4,
+  1 / 5,
+  1 / 6,
+  1 / 8,
+  1 / 10,
+  1 / 13,
+  1 / 15,
+  1 / 25,
+  1 / 30,
+  1 / 40,
+  1 / 50,
+  1 / 60,
+  1 / 80,
+  1 / 100,
+  1 / 125,
+  1 / 160,
+  1 / 200,
+  1 / 250,
+  1 / 320,
+  1 / 400,
+  1 / 500,
+  1 / 640,
+  1 / 800,
+  1 / 1000,
+  1 / 1250,
+  1 / 1600,
+  1 / 2000,
+  1 / 2500,
+  1 / 3200,
+  1 / 4000,
+  1 / 5000,
+  1 / 6400,
+  1 / 8000,
+];
 
-const apertureValues = [
+const aperturesFullStops = [1, 1.4, 2, 2.8, 4, 5.6, 8, 11, 16, 22];
+
+const aperturesThirdStops = [
   1,
   1.1,
   1.2,
@@ -106,20 +124,50 @@ const apertureValues = [
   22,
 ];
 
-export const apertures = apertureValues.map((aperture) => {
-  return {
-    aperture,
-    label: `f/${aperture}`,
-  };
-});
+function round(value: number, precision: number) {
+  const multiplier = Math.pow(10, precision || 0);
+  return Math.round(value * multiplier) / multiplier;
+}
+
+export function formatShutterSpeed(shutterSpeed: number) {
+  return shutterSpeed <= 1 / 4
+    ? `1/${1 / shutterSpeed}`
+    : `${round(shutterSpeed, 1)}s`;
+}
+
+export function makeShutterSpeeds(asFullStops = false): MetaValue[] {
+  const stopValues = asFullStops
+    ? shutterSpeedsFullStops
+    : shutterSpeedsThirdStops;
+  return stopValues.map((value) => ({
+    value,
+    label: formatShutterSpeed(value),
+  }));
+}
+
+export function formatAperture(aperture: number) {
+  return `f/${aperture}`;
+}
+
+export function makeApertures(asFullStops = false): MetaValue[] {
+  const stopValues = asFullStops ? aperturesFullStops : aperturesThirdStops;
+  return stopValues.map((value) => ({
+    value,
+    label: formatAperture(value),
+  }));
+}
+
+export function formatFocalLength(focalLength: number) {
+  return `${focalLength}mm`;
+}
 
 export const makeFocalLengths = (min: number, max: number) => {
   const diff = max + 1 - min;
   return Array.from(new Array(diff)).map((_, index) => {
-    const focalLength = min + index;
+    const value = min + index;
     return {
-      focalLength,
-      label: `${focalLength}mm`,
+      value,
+      label: formatFocalLength(value),
     };
   });
 };

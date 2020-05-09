@@ -10,7 +10,7 @@ export interface Camera {
 
 export interface CameraLens {
   id: string;
-  name?: string;
+  name: string;
   minFocalLength: number;
   maxFocalLength: number;
   minAperture: number;
@@ -68,8 +68,8 @@ const initialState: CameraBagState = {
     },
     lens_4: {
       id: "lens_4",
-      name: "Mamiya 150-200mm f/4.5",
-      minFocalLength: 150,
+      name: "Mamiya 100-200mm f/4.5",
+      minFocalLength: 100,
       maxFocalLength: 200,
       minAperture: 4.5,
       maxAperture: 22,

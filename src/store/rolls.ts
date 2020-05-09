@@ -9,10 +9,7 @@ export interface Roll {
   id: string;
   filmStockId: FilmStock["id"];
   cameraId: Camera["id"];
-  frames: {
-    [id: string]: Frame;
-  };
-  framesOrder: Frame["id"][];
+  frames: Frame[];
   maxFrameCount: number;
   dateLoaded: number;
   dateCompleted?: number;
@@ -24,6 +21,7 @@ export interface ComputedRoll extends Roll {
   filmStockName: string;
   cameraName: string;
   framesTaken: number;
+  hasFramesLeft: boolean;
   isComplete: boolean;
   isProcessed: boolean;
 }
@@ -34,8 +32,7 @@ export interface Frame {
   captureTime: number;
   focalLength: number;
   aperture: number;
-  shutterWhole: number;
-  shutterFraction: number;
+  shutterSpeed: number;
   notes?: string;
 }
 
@@ -44,47 +41,54 @@ interface FilmLogState {
     [id: string]: Roll;
   };
   tempRoll: Roll;
+  tempFrame: Frame;
 }
 
 const blankRoll: Roll = {
   id: "roll_blank",
   filmStockId: "",
   cameraId: "",
-  frames: {},
-  framesOrder: [],
+  frames: [],
   maxFrameCount: 0,
   dateLoaded: Date.now(),
 };
 
+const blankFrame: Frame = {
+  id: "frame_blank",
+  lensId: "",
+  captureTime: Date.now(),
+  focalLength: 0,
+  aperture: 0,
+  shutterSpeed: 0,
+};
+
 const initialState: FilmLogState = {
   tempRoll: blankRoll,
+  tempFrame: blankFrame,
   rolls: {
     roll_1: {
       id: "roll_1",
       filmStockId: "kodak-portra-400",
       cameraId: "cam_1",
-      frames: {
-        frame_1: {
+      frames: [
+        {
           id: "frame_1",
           lensId: "lens_1",
           captureTime: Date.now(),
           focalLength: 80,
           aperture: 2.8,
-          shutterWhole: 1,
-          shutterFraction: 250,
+          shutterSpeed: 1 / 250,
           notes: "A really cool reflection",
         },
-        frame_2: {
+        {
           id: "frame_2",
           lensId: "lens_1",
           captureTime: Date.now(),
           focalLength: 80,
           aperture: 4,
-          shutterWhole: 1,
-          shutterFraction: 250,
+          shutterSpeed: 1 / 250,
         },
-      },
-      framesOrder: ["frame_1", "frame_2"],
+      ],
       maxFrameCount: 12,
       dateLoaded: Date.now(),
     },
@@ -92,8 +96,7 @@ const initialState: FilmLogState = {
       id: "roll_2",
       filmStockId: "kodak-t-max-400",
       cameraId: "cam_2",
-      frames: {},
-      framesOrder: [],
+      frames: [],
       maxFrameCount: 12,
       dateLoaded: Date.now(),
     },
@@ -101,21 +104,7 @@ const initialState: FilmLogState = {
       id: "roll_3",
       filmStockId: "kodak-portra-400",
       cameraId: "cam_1",
-      frames: {},
-      framesOrder: [
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-      ],
+      frames: [],
       maxFrameCount: 12,
       dateLoaded: Date.now(),
       dateCompleted: Date.now(),
@@ -124,19 +113,7 @@ const initialState: FilmLogState = {
       id: "roll_4",
       filmStockId: "kodak-portra-400",
       cameraId: "cam_1",
-      frames: {},
-      framesOrder: [
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-        "frame_1",
-      ],
+      frames: [],
       maxFrameCount: 12,
       dateLoaded: Date.now(),
       dateCompleted: Date.now(),
@@ -153,21 +130,11 @@ export const { actions, reducer } = createSlice({
     resetTempRoll: (state) => {
       state.tempRoll = blankRoll;
     },
-    setTempRollFilmStock: (
-      state,
-      action: PayloadAction<{ filmStockId: string }>,
-    ) => {
-      state.tempRoll.filmStockId = action.payload.filmStockId;
-    },
-    setTempRollCamera: (state, action: PayloadAction<{ cameraId: string }>) => {
-      state.tempRoll.cameraId = action.payload.cameraId;
-    },
-    setTempRollExtraInfo: (
-      state,
-      action: PayloadAction<{ maxFrameCount: number; notes?: string }>,
-    ) => {
-      state.tempRoll.maxFrameCount = action.payload.maxFrameCount;
-      state.tempRoll.notes = action.payload.notes;
+    updateTempRoll: (state, action: PayloadAction<Partial<Roll>>) => {
+      state.tempRoll = {
+        ...state.tempRoll,
+        ...action.payload,
+      };
     },
     saveTempRoll: (state) => {
       const rollId = uuid("roll");
@@ -178,34 +145,72 @@ export const { actions, reducer } = createSlice({
       };
       state.tempRoll = blankRoll;
     },
+    toggleComplete: (state, action: PayloadAction<{ rollId: string }>) => {
+      const roll = state.rolls[action.payload.rollId];
+      if (roll.dateCompleted) {
+        roll.dateCompleted = undefined;
+      } else {
+        roll.dateCompleted = Date.now();
+      }
+    },
+    toggleProcessed: (state, action: PayloadAction<{ rollId: string }>) => {
+      const roll = state.rolls[action.payload.rollId];
+      if (roll.dateProcessed) {
+        roll.dateProcessed = undefined;
+      } else {
+        roll.dateProcessed = Date.now();
+      }
+    },
     deleteRoll: (state, action: PayloadAction<{ rollId: string }>) => {
       delete state.rolls[action.payload.rollId];
     },
-    addFrameToRoll: (
-      state,
-      action: PayloadAction<{
-        rollId: string;
-        lensId: string;
-        focalLength: number;
-        aperture: number;
-        shutterWhole: number;
-        shutterFraction: number;
-        notes?: string;
-      }>,
-    ) => {
+    resetTempFrame: (state) => {
+      state.tempFrame = blankFrame;
+    },
+    updateTempFrame: (state, action: PayloadAction<Partial<Frame>>) => {
+      state.tempFrame = {
+        ...state.tempFrame,
+        ...action.payload,
+      };
+    },
+    saveTempFrame: (state, action: PayloadAction<{ rollId: string }>) => {
       const roll = state.rolls[action.payload.rollId];
       const frameId = uuid("frame");
-      roll.frames[frameId] = {
+      const frame = {
+        ...state.tempFrame,
         id: frameId,
-        lensId: action.payload.lensId,
         captureTime: Date.now(),
-        focalLength: action.payload.focalLength,
-        aperture: action.payload.aperture,
-        shutterWhole: action.payload.shutterWhole,
-        shutterFraction: action.payload.shutterFraction,
-        notes: action.payload.notes,
       };
-      roll.framesOrder = [...roll.framesOrder, frameId];
+      roll.frames = [...roll.frames, frame];
+      if (roll.frames.length === roll.maxFrameCount) {
+        roll.dateCompleted = Date.now();
+      }
+      state.tempFrame = blankFrame;
+    },
+    updateFrame: (
+      state,
+      action: PayloadAction<{ rollId: string; frame: Partial<Frame> }>,
+    ) => {
+      const roll = state.rolls[action.payload.rollId];
+      const indexOfFrame = roll.frames.findIndex(
+        (i) => i.id === action.payload.frame.id,
+      );
+      let rollFrame = roll.frames[indexOfFrame];
+      roll.frames = [
+        ...roll.frames.slice(0, indexOfFrame),
+        {
+          ...rollFrame,
+          ...action.payload.frame,
+        },
+        ...roll.frames.slice(indexOfFrame + 1, roll.frames.length),
+      ];
+    },
+    deleteFrame: (
+      state,
+      action: PayloadAction<{ rollId: string; frameId: string }>,
+    ) => {
+      const roll = state.rolls[action.payload.rollId];
+      roll.frames = roll.frames.filter((i) => i.id !== action.payload.frameId);
     },
   },
 });
@@ -222,27 +227,15 @@ export function resetTempRoll() {
   };
 }
 
-export function setTempRollFilmStock(filmStockId: string) {
+export function updateTempRoll(payload: Partial<Roll>) {
   return function (dispatch: Dispatch) {
-    dispatch(actions.setTempRollFilmStock({ filmStockId }));
-  };
-}
-
-export function setTempRollCamera(cameraId: string) {
-  return function (dispatch: Dispatch) {
-    dispatch(actions.setTempRollCamera({ cameraId }));
-  };
-}
-
-export function setTempRollExtraInfo(maxFrameCount: number, notes?: string) {
-  return function (dispatch: Dispatch) {
-    dispatch(actions.setTempRollExtraInfo({ maxFrameCount, notes }));
+    dispatch(actions.updateTempRoll(payload));
   };
 }
 
 export function saveTempRoll() {
   return function (dispatch: Dispatch) {
-    dispatch(actions.saveTempRoll());
+    return dispatch(actions.saveTempRoll());
   };
 }
 
@@ -252,19 +245,45 @@ export function deleteRoll(rollId: string) {
   };
 }
 
-export function addFrameToRoll(
-  frame: {
-    lensId: string;
-    focalLength: number;
-    aperture: number;
-    shutterWhole: number;
-    shutterFraction: number;
-    notes?: string;
-  },
-  rollId: string,
-) {
+export function toggleComplete(rollId: string) {
   return function (dispatch: Dispatch) {
-    dispatch(actions.addFrameToRoll({ ...frame, rollId }));
+    dispatch(actions.toggleComplete({ rollId }));
+  };
+}
+
+export function toggleProcessed(rollId: string) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.toggleProcessed({ rollId }));
+  };
+}
+
+export function resetTempFrame() {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.resetTempFrame());
+  };
+}
+
+export function updateTempFrame(payload: Partial<Frame>) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.updateTempFrame(payload));
+  };
+}
+
+export function saveTempFrame(rollId: string) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.saveTempFrame({ rollId }));
+  };
+}
+
+export function updateFrame(rollId: string, frame: Partial<Frame>) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.updateFrame({ rollId, frame }));
+  };
+}
+
+export function deleteFrame(rollId: string, frameId: string) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.deleteFrame({ rollId, frameId }));
   };
 }
 
@@ -277,12 +296,14 @@ function rollById(state: AppState, id: string): ComputedRoll | undefined {
 
   const filmStock = filmStockSelectors.filmStockById(state, roll.filmStockId);
   const camera = cameraBagSelectors.cameraById(state, roll.cameraId);
+  const framesTaken = roll.frames.length;
 
   return {
     ...roll,
     filmStockName: filmStock ? filmStock.name : "",
     cameraName: camera ? camera.name : "",
-    framesTaken: roll.framesOrder.length,
+    framesTaken,
+    hasFramesLeft: framesTaken < roll.maxFrameCount,
     isComplete: Boolean(roll.dateCompleted),
     isProcessed: Boolean(roll.dateProcessed),
   };
@@ -344,9 +365,14 @@ function tempRoll(state: AppState): Roll {
   return state.rolls.tempRoll;
 }
 
+function tempFrame(state: AppState): Frame {
+  return state.rolls.tempFrame;
+}
+
 export const rollSelectors = {
   rollById,
   rollsList,
   rollsListGrouped,
   tempRoll,
+  tempFrame,
 };

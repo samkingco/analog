@@ -5,19 +5,17 @@ import {
   StackNavigationProp,
   createStackNavigator,
 } from "@react-navigation/stack";
+import { useSelector } from "react-redux";
+import { cameraBagSelectors } from "../store/camera-bag";
 import { RootStackParamList } from "../App";
 import { ScreenBackground } from "../components/ScreenBackground";
 import { NavigationHeader } from "../components/NavigationHeader";
-import { useSelector } from "react-redux";
-import { cameraBagSelectors, Camera, CameraLens } from "../store/camera-bag";
-import { ContentBlock } from "../design-system/ContentBlock";
-import { Headline } from "../design-system/Headline";
 import { theme } from "../theme";
-import { Icon } from "../design-system/Icon";
-import { ChevronRightIcon } from "../design-system/icons/ChevronRightIcon";
+import { ContentBlock } from "../design-system/ContentBlock";
 import { List } from "../design-system/List";
 import { SectionTitle } from "../design-system/SectionTitle";
 import { Button } from "../design-system/Button";
+import { ListItem } from "../design-system/ListItem";
 
 export type CameraBagStackParamList = {
   CameraBag: undefined;
@@ -37,48 +35,6 @@ type Props = {
   navigation: CameraBagScreenNavigationProp;
 };
 
-interface CameraItemProps {
-  item: Camera;
-  navigation: CameraBagScreenNavigationProp;
-}
-
-function CameraItem({ item, navigation }: CameraItemProps) {
-  return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      style={styles.listItem}
-      onPress={() => {}}>
-      <View style={styles.listItemContent}>
-        <Headline>{item.name}</Headline>
-      </View>
-      <View>
-        <Icon type={ChevronRightIcon} color="subtle" />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-interface CameraLensItemProps {
-  item: CameraLens;
-  navigation: CameraBagScreenNavigationProp;
-}
-
-function CameraLensItem({ item, navigation }: CameraLensItemProps) {
-  return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      style={styles.listItem}
-      onPress={() => {}}>
-      <View style={styles.listItemContent}>
-        <Headline>{item.name}</Headline>
-      </View>
-      <View>
-        <Icon type={ChevronRightIcon} color="subtle" />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
 export function CameraBagScreenComponent({ navigation }: Props) {
   const cameras = useSelector(cameraBagSelectors.camerasList);
   const lenses = useSelector(cameraBagSelectors.lensesList);
@@ -92,7 +48,7 @@ export function CameraBagScreenComponent({ navigation }: Props) {
           items={cameras}
           keyExtractor={(i) => i.id}
           renderItem={(item) => (
-            <CameraItem item={item} navigation={navigation} />
+            <ListItem title={item.name} onPress={() => {}} />
           )}
         />
         <Button variant="secondary">Add camera</Button>
@@ -104,7 +60,7 @@ export function CameraBagScreenComponent({ navigation }: Props) {
           items={lenses}
           keyExtractor={(i) => i.id}
           renderItem={(item) => (
-            <CameraLensItem item={item} navigation={navigation} />
+            <ListItem title={item.name} onPress={() => {}} />
           )}
         />
         <Button variant="secondary">Add lens</Button>
@@ -129,7 +85,8 @@ export function CameraBagScreen() {
               {...props}
             />
           ),
-        })}>
+        })}
+      >
         <Stack.Screen
           name="CameraBag"
           component={CameraBagScreenComponent}

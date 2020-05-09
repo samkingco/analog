@@ -15,7 +15,6 @@ import {
   AddRollScreen,
   ChooseFilmStockScreen,
   ChooseCameraScreen,
-  ExtraInfoScreen,
 } from "./screens/AddRollScreen";
 import { FrameDetailScreen } from "./screens/FrameDetailScreen";
 import { AddFrameScreen } from "./screens/AddFrameScreen";
@@ -27,7 +26,7 @@ export type RootStackParamList = {
   AddRollChooseFilmStock: undefined;
   AddRollChooseCamera: undefined;
   AddRollExtraInfo: undefined;
-  FrameDetail: { frameId: string; rollId?: string };
+  FrameDetail: { frameId: string; rollId: string };
   AddFrame: { rollId: string };
   CameraBag: undefined;
 };
@@ -46,7 +45,8 @@ export const App = () => {
             gestureEnabled: true,
             cardOverlayEnabled: true,
             header: (props) => <NavigationHeader {...props} />,
-          }}>
+          }}
+        >
           <Stack.Screen name="Rolls" component={RollsScreen} />
           <Stack.Screen name="RollDetail" component={RollDetailScreen} />
           <Stack.Screen name="FrameDetail" component={FrameDetailScreen} />
@@ -70,13 +70,6 @@ export const App = () => {
             component={ChooseCameraScreen}
             options={{
               title: "Choose camera",
-            }}
-          />
-          <Stack.Screen
-            name="AddRollExtraInfo"
-            component={ExtraInfoScreen}
-            options={{
-              title: "Extra info",
             }}
           />
           <Stack.Screen

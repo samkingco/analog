@@ -34,7 +34,8 @@ export function NavigationHeader({
 
   return (
     <View
-      style={[styles.wrapper, { paddingTop: isModal ? 0 : ifIphoneX(44, 0) }]}>
+      style={[styles.wrapper, { paddingTop: isModal ? 0 : ifIphoneX(44, 0) }]}
+    >
       <View style={styles.topBar}>
         <View>
           {showCloseButton && parentNavigation ? (

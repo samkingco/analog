@@ -1,29 +1,41 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { ScrollView, StyleSheet, View, TouchableOpacity } from "react-native";
+import { ScrollView } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { format } from "date-fns";
 import { RootStackParamList } from "../App";
-import { rollSelectors, Frame, deleteRoll } from "../store/rolls";
+import {
+  rollSelectors,
+  Frame,
+  toggleComplete,
+  toggleProcessed,
+  deleteRoll,
+  resetTempFrame,
+} from "../store/rolls";
+import { filmStockSelectors } from "../store/film-stocks";
+import { cameraBagSelectors } from "../store/camera-bag";
 import { ScreenBackground } from "../components/ScreenBackground";
-import { Headline } from "../design-system/Headline";
+import { ScrollViewPadding } from "../components/ScrollViewPadding";
+import { theme } from "../theme";
 import { ContentBlock } from "../design-system/ContentBlock";
 import { SectionTitle } from "../design-system/SectionTitle";
 import { List } from "../design-system/List";
-import { theme } from "../theme";
-import { Icon, IconComponent } from "../design-system/Icon";
-import { filmStockSelectors } from "../store/film-stocks";
-import { cameraBagSelectors } from "../store/camera-bag";
+import { IconComponent } from "../design-system/Icon";
 import { IsoIcon } from "../design-system/icons/IsoIcon";
 import { ContrastIcon } from "../design-system/icons/ContrastIcon";
 import { GrainIcon } from "../design-system/icons/GrainIcon";
 import { CameraIcon } from "../design-system/icons/CameraIcon";
 import { NoteIcon } from "../design-system/icons/NoteIcon";
 import { Subhead } from "../design-system/Subhead";
-import { ChevronRightIcon } from "../design-system/icons/ChevronRightIcon";
 import { Button } from "../design-system/Button";
-import { ScrollViewPadding } from "../components/ScrollViewPadding";
+import { ListItem } from "../design-system/ListItem";
+import { LensIcon } from "../design-system/icons/LensIcon";
+import {
+  formatShutterSpeed,
+  formatAperture,
+  formatFocalLength,
+} from "../util/camera-settings";
 
 type RollDetailScreenRouteProp = RouteProp<RootStackParamList, "RollDetail">;
 type RollDetailScreenNavigationProp = StackNavigationProp<
@@ -39,41 +51,6 @@ type Props = {
 interface FrameListItem extends Frame {
   frameNumber: number;
   maxFrameCount: number;
-}
-
-interface FrameListItemProps {
-  item: FrameListItem;
-  navigation: RollDetailScreenNavigationProp;
-}
-
-function FrameListItem({ item, navigation }: FrameListItemProps) {
-  const shutterSpeedStr = `${item.shutterWhole}${
-    item.shutterFraction ? `/${item.shutterFraction}` : ""
-  }s`;
-  const apertureStr = `f/${item.aperture}`;
-  const focalLengthStr = `${item.focalLength}mm`;
-
-  return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      style={[styles.listItemBase, styles.listItemHighlighted]}
-      onPress={() => navigation.navigate("FrameDetail", { frameId: item.id })}>
-      <View style={styles.listItemContent}>
-        <Subhead>
-          <Subhead color="inverted">{item.frameNumber}</Subhead> /{" "}
-          {item.maxFrameCount}
-        </Subhead>
-        {item.notes ? <Headline color="inverted">{item.notes}</Headline> : null}
-        <Headline color="inverted">
-          {shutterSpeedStr} • {apertureStr} • {focalLengthStr}
-        </Headline>
-        <Subhead>{format(item.captureTime, "HH:mm 'on' do MMMM")}</Subhead>
-      </View>
-      <View>
-        <Icon type={ChevronRightIcon} color="subtle" />
-      </View>
-    </TouchableOpacity>
-  );
 }
 
 interface InfoItem {
@@ -95,6 +72,8 @@ export function RollDetailScreen({ route, navigation }: Props) {
     cameraBagSelectors.cameraById(s, roll ? roll.cameraId : ""),
   );
 
+  const lenses = useSelector(cameraBagSelectors.lensesList);
+
   if (!roll) {
     return (
       <ScreenBackground>
@@ -105,10 +84,10 @@ export function RollDetailScreen({ route, navigation }: Props) {
 
   navigation.setOptions({ title: roll.filmStockName });
 
-  const frameList: FrameListItem[] = roll.framesOrder
-    .map((id, index) => {
+  const frameList: FrameListItem[] = roll.frames
+    .map((frame, index) => {
       return {
-        ...roll.frames[id],
+        ...frame,
         frameNumber: index + 1,
         maxFrameCount: roll.maxFrameCount,
       };
@@ -143,6 +122,19 @@ export function RollDetailScreen({ route, navigation }: Props) {
       label: camera.name,
     });
   }
+
+  const usedLensIds = roll.frames.map((frame) => frame.lensId);
+  const lensesUsed = lenses.filter((i) => usedLensIds.includes(i.id));
+
+  if (lensesUsed.length > 0) {
+    lensesUsed.forEach((lens) => {
+      extraInfo.push({
+        icon: LensIcon,
+        label: lens.name,
+      });
+    });
+  }
+
   if (roll.notes) {
     extraInfo.push({
       icon: NoteIcon,
@@ -169,50 +161,85 @@ export function RollDetailScreen({ route, navigation }: Props) {
 
   return (
     <ScreenBackground>
-      <ScrollView>
-        {!roll.isComplete && frameList.length > 0 ? (
-          <ContentBlock>
+      <ScrollView style={{ flex: 1 }}>
+        <ContentBlock>
+          {roll.hasFramesLeft && !roll.isComplete && !roll.isProcessed ? (
             <Button
-              variant="secondary"
-              onPress={() =>
-                navigation.navigate("AddFrame", { rollId: roll.id })
-              }>
+              variant="primary"
+              style={{ marginBottom: theme.spacing.s12 }}
+              onPress={() => {
+                dispatch(resetTempFrame);
+                navigation.navigate("AddFrame", { rollId: roll.id });
+              }}
+            >
               New photo
             </Button>
-          </ContentBlock>
-        ) : null}
-        <ContentBlock>
+          ) : null}
           {frameList.length > 0 ? (
             <>
-              <SectionTitle>Photos taken</SectionTitle>
               <List
                 items={frameList}
                 keyExtractor={(i) => i.id}
-                dividerColor="light"
-                renderItem={(item) => (
-                  <FrameListItem item={item} navigation={navigation} />
-                )}
+                dividerColor={!roll.isComplete ? "light" : "dark"}
+                renderItem={(item) => {
+                  const shutterSpeedStr = formatShutterSpeed(item.shutterSpeed);
+                  const apertureStr = formatAperture(item.aperture);
+                  const focalLengthStr = formatFocalLength(item.focalLength);
+                  return (
+                    <ListItem
+                      title={`${item.frameNumber} / ${item.maxFrameCount}${
+                        item.notes ? `\n${item.notes}` : ""
+                      }`}
+                      subtitle={`${shutterSpeedStr} • ${apertureStr} • ${focalLengthStr}`}
+                      onPress={() =>
+                        navigation.navigate("FrameDetail", {
+                          rollId,
+                          frameId: item.id,
+                        })
+                      }
+                      isHighlighted={!roll.isComplete}
+                    />
+                  );
+                }}
               />
               {!roll.isComplete ? (
                 <Button
                   variant="secondary"
-                  style={{ marginTop: theme.spacing.s12 }}>
-                  Complete roll early
+                  style={{ marginTop: theme.spacing.s12 }}
+                  onPress={() => dispatch(toggleComplete(roll.id))}
+                >
+                  Finish roll{roll.hasFramesLeft ? " early" : ""}
+                </Button>
+              ) : null}
+              {roll.isComplete && !roll.isProcessed && roll.hasFramesLeft ? (
+                <Button
+                  variant="secondary"
+                  style={{ marginTop: theme.spacing.s12 }}
+                  onPress={() => dispatch(toggleComplete(roll.id))}
+                >
+                  Resume shooting
+                </Button>
+              ) : null}
+              {roll.isComplete && !roll.isProcessed ? (
+                <Button
+                  variant="secondary"
+                  style={{ marginTop: theme.spacing.s12 }}
+                  onPress={() => dispatch(toggleProcessed(roll.id))}
+                >
+                  Mark as processed
+                </Button>
+              ) : null}
+              {roll.isComplete && roll.isProcessed ? (
+                <Button
+                  variant="secondary"
+                  style={{ marginTop: theme.spacing.s12 }}
+                  onPress={() => dispatch(toggleProcessed(roll.id))}
+                >
+                  Mark as unprocessed
                 </Button>
               ) : null}
             </>
-          ) : (
-            <>
-              <SectionTitle>No photos taken yet</SectionTitle>
-              <Button
-                variant="secondary"
-                onPress={() =>
-                  navigation.navigate("AddFrame", { rollId: roll.id })
-                }>
-                New photo
-              </Button>
-            </>
-          )}
+          ) : null}
         </ContentBlock>
         <ContentBlock>
           <SectionTitle>Info</SectionTitle>
@@ -220,16 +247,10 @@ export function RollDetailScreen({ route, navigation }: Props) {
             items={filmInfo}
             keyExtractor={(i) => i.label}
             renderItem={(item) => (
-              <View style={[styles.listItemBase, styles.listItemDefault]}>
-                {item.icon ? (
-                  <View style={{ marginRight: theme.spacing.s8 }}>
-                    <Icon type={item.icon} color="subtle" />
-                  </View>
-                ) : null}
-                <View style={styles.listItemContent}>
-                  <Headline>{item.label}</Headline>
-                </View>
-              </View>
+              <ListItem
+                leftIconType={item.icon ? item.icon : undefined}
+                title={item.label}
+              />
             )}
           />
           <List
@@ -237,16 +258,10 @@ export function RollDetailScreen({ route, navigation }: Props) {
             items={extraInfo}
             keyExtractor={(i) => i.label}
             renderItem={(item) => (
-              <View style={[styles.listItemBase, styles.listItemDefault]}>
-                {item.icon ? (
-                  <View style={{ marginRight: theme.spacing.s8 }}>
-                    <Icon type={item.icon} color="subtle" />
-                  </View>
-                ) : null}
-                <View style={styles.listItemContent}>
-                  <Headline>{item.label}</Headline>
-                </View>
-              </View>
+              <ListItem
+                leftIconType={item.icon ? item.icon : undefined}
+                title={item.label}
+              />
             )}
           />
           <List
@@ -254,26 +269,21 @@ export function RollDetailScreen({ route, navigation }: Props) {
             items={dateInfo}
             keyExtractor={(i) => i.label}
             renderItem={(item) => (
-              <View style={[styles.listItemBase, styles.listItemDefault]}>
-                {item.icon ? (
-                  <View style={{ marginRight: theme.spacing.s8 }}>
-                    <Icon type={item.icon} color="subtle" />
-                  </View>
-                ) : null}
-                <View style={styles.listItemContent}>
-                  <Headline>{item.label}</Headline>
-                </View>
-              </View>
+              <ListItem
+                leftIconType={item.icon ? item.icon : undefined}
+                title={item.label}
+              />
             )}
           />
         </ContentBlock>
         <ContentBlock>
           <Button
-            variant="secondary"
+            variant="danger"
             onPress={() => {
               dispatch(deleteRoll(roll.id));
               navigation.popToTop();
-            }}>
+            }}
+          >
             Delete roll
           </Button>
         </ContentBlock>
@@ -282,20 +292,3 @@ export function RollDetailScreen({ route, navigation }: Props) {
     </ScreenBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  listItemBase: {
-    padding: theme.spacing.s12,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  listItemDefault: {
-    backgroundColor: theme.colors.background.interactive,
-  },
-  listItemHighlighted: {
-    backgroundColor: theme.colors.background.inverted,
-  },
-  listItemContent: {
-    flex: 1,
-  },
-});
