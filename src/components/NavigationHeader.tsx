@@ -7,7 +7,7 @@ import { theme } from "../theme";
 import { Icon } from "../design-system/Icon";
 import { ArrowLeftIcon } from "../design-system/icons/ArrowLeftIcon";
 import { CloseIcon } from "../design-system/icons/CloseIcon";
-import { CameraIcon } from "../design-system/icons/CameraIcon";
+import { CameraBagIcon } from "../design-system/icons/CameraBagIcon";
 
 interface Props extends StackHeaderProps {
   isModal?: boolean;
@@ -52,7 +52,7 @@ export function NavigationHeader({
         <View>
           {!showCloseButton && !previous ? (
             <TouchableOpacity onPress={() => navigation.navigate("CameraBag")}>
-              <Icon type={CameraIcon} />
+              <Icon type={CameraBagIcon} />
             </TouchableOpacity>
           ) : null}
         </View>

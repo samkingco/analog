@@ -11,13 +11,7 @@ import { List } from "../design-system/List";
 import { ScrollView } from "react-native-gesture-handler";
 import { TextInput } from "../design-system/TextInput";
 import { Button } from "../design-system/Button";
-import {
-  rollSelectors,
-  updateTempFrame,
-  saveTempFrame,
-  updateFrame,
-  deleteFrame,
-} from "../store/rolls";
+import { rollSelectors, updateFrame, deleteFrame } from "../store/rolls";
 import { cameraBagSelectors } from "../store/camera-bag";
 import { CheckIcon } from "../design-system/icons/CheckIcon";
 import { SectionTitle } from "../design-system/SectionTitle";

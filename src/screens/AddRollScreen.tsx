@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { TouchableOpacity, StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { RouteProp, CompositeNavigationProp } from "@react-navigation/native";
 import {
   StackNavigationProp,
@@ -10,17 +10,14 @@ import { ScreenBackground } from "../components/ScreenBackground";
 import { NavigationHeader } from "../components/NavigationHeader";
 import { useSelector, useDispatch } from "react-redux";
 import { ContentBlock } from "../design-system/ContentBlock";
-import { Headline } from "../design-system/Headline";
 import { theme } from "../theme";
-import { Icon } from "../design-system/Icon";
 import { List } from "../design-system/List";
 import { filmStockSelectors } from "../store/film-stocks";
-import { FilmStock } from "../store/film-stock-database";
 import { ScrollView } from "react-native-gesture-handler";
 import { TextInput } from "../design-system/TextInput";
 import { Button } from "../design-system/Button";
 import { rollSelectors, saveTempRoll, updateTempRoll } from "../store/rolls";
-import { cameraBagSelectors, Camera } from "../store/camera-bag";
+import { cameraBagSelectors } from "../store/camera-bag";
 import { KeyboardAvoidingView } from "../components/KeyboardAvoidingView";
 import { ScrollViewPadding } from "../components/ScrollViewPadding";
 import { CheckIcon } from "../design-system/icons/CheckIcon";
