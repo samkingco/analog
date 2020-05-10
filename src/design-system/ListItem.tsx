@@ -1,5 +1,5 @@
-import React from "react";
-import { TouchableOpacity, View, StyleSheet } from "react-native";
+import React, { useRef, useEffect } from "react";
+import { TouchableOpacity, View, StyleSheet, Animated } from "react-native";
 import { Subhead } from "../design-system/Subhead";
 import { Headline } from "../design-system/Headline";
 import { Icon, IconComponent } from "../design-system/Icon";
@@ -17,6 +17,18 @@ interface ListItemProps {
 }
 
 export function ListItem(props: ListItemProps) {
+  const highlightedAnimation = useRef(
+    new Animated.Value(props.isHighlighted ? 1 : 0),
+  ).current;
+
+  useEffect(() => {
+    Animated.timing(highlightedAnimation, {
+      toValue: props.isHighlighted ? 1 : 0,
+      duration: 250,
+      useNativeDriver: false,
+    }).start();
+  }, [props.isHighlighted]);
+
   let rightIcon;
   if (props.onPress) {
     rightIcon = ChevronRightIcon;
@@ -32,15 +44,17 @@ export function ListItem(props: ListItemProps) {
           <Icon type={props.leftIconType} color="subtle" />
         </View>
       ) : null}
-      <View style={styles.listItemContent}>
+      <View style={styles.content}>
         {props.pretitle ? (
           <Subhead color={props.isHighlighted ? "invertedSubtle" : undefined}>
             {props.pretitle}
           </Subhead>
         ) : null}
-        <Headline color={props.isHighlighted ? "inverted" : undefined}>
-          {props.title}
-        </Headline>
+        {props.title ? (
+          <Headline color={props.isHighlighted ? "inverted" : undefined}>
+            {props.title}
+          </Headline>
+        ) : null}
         {props.subtitle ? (
           <Subhead color={props.isHighlighted ? "invertedSubtle" : undefined}>
             {props.subtitle}
@@ -55,50 +69,42 @@ export function ListItem(props: ListItemProps) {
     </>
   );
 
-  if (props.onPress) {
-    return (
-      <TouchableOpacity
-        activeOpacity={props.isHighlighted ? 0.8 : 0.4}
-        style={[
-          styles.listItemBase,
-          props.isHighlighted
-            ? styles.listItemHighlighted
-            : styles.listItemDefault,
-        ]}
-        onPress={props.onPress}
-      >
-        {content}
-      </TouchableOpacity>
-    );
-  }
-
   return (
-    <View
+    <Animated.View
       style={[
-        styles.listItemBase,
-        props.isHighlighted
-          ? styles.listItemHighlighted
-          : styles.listItemDefault,
+        {
+          backgroundColor: highlightedAnimation.interpolate({
+            inputRange: [0, 1],
+            outputRange: [
+              theme.colors.background.interactive,
+              theme.colors.background.inverted,
+            ],
+          }),
+        },
       ]}
     >
-      {content}
-    </View>
+      {props.onPress ? (
+        <TouchableOpacity
+          activeOpacity={props.isHighlighted ? 0.8 : 0.4}
+          onPress={props.onPress}
+          style={styles.container}
+        >
+          {content}
+        </TouchableOpacity>
+      ) : (
+        <View style={styles.container}>{content}</View>
+      )}
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  listItemBase: {
+  container: {
     padding: theme.spacing.s12,
     flexDirection: "row",
     alignItems: "center",
   },
-  listItemDefault: {
-    backgroundColor: theme.colors.background.interactive,
-  },
-  listItemHighlighted: {
-    backgroundColor: theme.colors.background.inverted,
-  },
-  listItemContent: {
+  content: {
     flex: 1,
   },
   leftIcon: {

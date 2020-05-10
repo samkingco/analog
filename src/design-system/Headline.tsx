@@ -13,6 +13,10 @@ export function Headline({
   style,
   ...props
 }: HeadlineProps) {
+  // TODO: Add inverted prop and change theme colors to be like
+  // normal: { default, subtle }
+  // inverted: { default, subtle }
+  // then animate based on inverted or not
   const textStyle = StyleSheet.flatten([
     styles.text,
     {
