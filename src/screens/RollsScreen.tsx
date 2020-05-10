@@ -76,7 +76,7 @@ export function RollsScreen({ navigation }: Props) {
           <Button
             variant="secondary"
             onPress={() => {
-              navigation.navigate("AddCamera");
+              navigation.navigate("AddRollStack");
             }}
           >
             Start a new roll
