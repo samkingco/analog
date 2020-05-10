@@ -37,6 +37,7 @@ import {
   formatFocalLength,
 } from "../util/camera-settings";
 import { RollsScreenStackParamList } from "./RollsStack";
+import { FilmRollIcon } from "../design-system/icons/FilmRollIcon";
 
 export type RollDetailScreenRouteProp = RouteProp<
   RollsScreenStackParamList,
@@ -96,6 +97,18 @@ export function RollDetailScreen({ route, navigation }: Props) {
       icon: IsoIcon,
       label: `ISO ${filmStock.speed}`,
     });
+    if (filmStock.process || filmStock.type) {
+      const label = [
+        filmStock.type,
+        filmStock.process !== "B&W" && filmStock.process,
+      ]
+        .filter(Boolean)
+        .join(`  •  `);
+      filmInfo.push({
+        icon: FilmRollIcon,
+        label,
+      });
+    }
     if (filmStock.contrast) {
       filmInfo.push({
         icon: ContrastIcon,
