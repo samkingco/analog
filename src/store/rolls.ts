@@ -388,9 +388,15 @@ function rollsListGrouped(state: AppState): GroupedRollsList {
     }
   }
 
-  // TODO: sort each list by date e.g. loaded, completed, processed
-  // newest should be at the top
-  return { shooting, complete, processed };
+  return {
+    shooting: shooting.sort((a, b) => (a.dateLoaded > b.dateLoaded ? -1 : 1)),
+    complete: complete.sort((a, b) =>
+      a.dateCompleted! > b.dateCompleted! ? -1 : 1,
+    ),
+    processed: processed.sort((a, b) =>
+      a.dateProcessed! > b.dateProcessed! ? -1 : 1,
+    ),
+  };
 }
 
 function rollsListForCameraGrouped(
