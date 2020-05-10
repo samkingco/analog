@@ -23,6 +23,7 @@ import { ListItem } from "../design-system/ListItem";
 import { CheckIcon } from "../design-system/icons/CheckIcon";
 import { BlankIcon } from "../design-system/icons/BlankIcon";
 import { Subhead } from "../design-system/Subhead";
+import { Toolbar } from "../components/Toolbar";
 
 type EditCameraScreenRouteProp = RouteProp<
   CameraBagStackParamList,
@@ -108,37 +109,36 @@ export function EditCameraScreen({ route, navigation }: EditCameraScreenProps) {
               }}
             />
           </ContentBlock>
-          <ContentBlock>
-            <Button
-              isDisabled={!canSubmit}
-              onPress={() => {
-                dispatch(
-                  updateCamera({
-                    ...camera,
-                    name: localName,
-                    numberOfFrames: localNumberOfFrames,
-                    lensIds: localLensIds,
-                  }),
-                );
-                navigation.pop();
-              }}
-            >
-              Save
-            </Button>
-          </ContentBlock>
-          <ContentBlock>
-            <Button
-              variant="danger"
-              onPress={() => {
-                dispatch(deleteCamera(camera.id));
-                navigation.popToTop();
-              }}
-            >
-              Delete camera
-            </Button>
-          </ContentBlock>
           <ScrollViewPadding />
         </ScrollView>
+        <Toolbar>
+          <Button
+            isDisabled={!canSubmit}
+            onPress={() => {
+              dispatch(
+                updateCamera({
+                  ...camera,
+                  name: localName,
+                  numberOfFrames: localNumberOfFrames,
+                  lensIds: localLensIds,
+                }),
+              );
+              navigation.pop();
+            }}
+          >
+            Save
+          </Button>
+          <Button
+            variant="danger"
+            onPress={() => {
+              dispatch(deleteCamera(camera.id));
+              navigation.popToTop();
+            }}
+            style={{ marginTop: theme.spacing.s12 }}
+          >
+            Delete camera
+          </Button>
+        </Toolbar>
       </KeyboardAvoidingView>
     </ScreenBackground>
   );

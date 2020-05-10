@@ -22,6 +22,7 @@ import { List } from "../design-system/List";
 import { ListItem } from "../design-system/ListItem";
 import { CheckIcon } from "../design-system/icons/CheckIcon";
 import { BlankIcon } from "../design-system/icons/BlankIcon";
+import { Toolbar } from "../components/Toolbar";
 
 type AddCameraScreenRouteProp = RouteProp<RootStackParamList, "AddCamera">;
 type AddCameraScreenNavigationProp = StackNavigationProp<
@@ -102,19 +103,19 @@ export function AddCameraScreen({ navigation }: AddCameraScreenProps) {
               Add lens
             </Button>
           </ContentBlock>
-          <ContentBlock>
-            <Button
-              isDisabled={!canSubmit}
-              onPress={() => {
-                dispatch(saveTempCamera());
-                navigation.pop();
-              }}
-            >
-              Add camera
-            </Button>
-          </ContentBlock>
           <ScrollViewPadding />
         </ScrollView>
+        <Toolbar>
+          <Button
+            isDisabled={!canSubmit}
+            onPress={() => {
+              dispatch(saveTempCamera());
+              navigation.pop();
+            }}
+          >
+            Add camera
+          </Button>
+        </Toolbar>
       </KeyboardAvoidingView>
     </ScreenBackground>
   );

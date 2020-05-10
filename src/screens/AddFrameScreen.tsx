@@ -24,6 +24,8 @@ import {
   makeApertures,
   makeFocalLengths,
 } from "../util/camera-settings";
+import { SafeAreaView } from "react-native";
+import { Toolbar } from "../components/Toolbar";
 
 type AddFrameScreenRouteProp = RouteProp<RootStackParamList, "AddFrame">;
 type AddFrameNavigationProp = StackNavigationProp<
@@ -171,18 +173,18 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
               style={{ marginTop: theme.spacing.s12 }}
             />
           </ContentBlock>
-          <ContentBlock>
-            <Button
-              onPress={() => {
-                dispatch(saveTempFrame(rollId));
-                navigation.pop();
-              }}
-            >
-              Save
-            </Button>
-          </ContentBlock>
           <ScrollViewPadding />
         </ScrollView>
+        <Toolbar>
+          <Button
+            onPress={() => {
+              dispatch(saveTempFrame(rollId));
+              navigation.pop();
+            }}
+          >
+            Save
+          </Button>
+        </Toolbar>
       </KeyboardAvoidingView>
     </ScreenBackground>
   );

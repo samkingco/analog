@@ -161,7 +161,7 @@ export function formatFocalLength(focalLength: number) {
   return `${focalLength}mm`;
 }
 
-export const makeFocalLengths = (min: number, max: number) => {
+export function makeFocalLengths(min: number, max: number) {
   const diff = max + 1 - min;
   return Array.from(new Array(diff)).map((_, index) => {
     const value = min + index;
@@ -170,4 +170,12 @@ export const makeFocalLengths = (min: number, max: number) => {
       label: formatFocalLength(value),
     };
   });
-};
+}
+
+export function makePushPull(steps = 8) {
+  const pull = Array.from(new Array(steps)).map(
+    (_, index) => (steps - index) * -1,
+  );
+  const push = Array.from(new Array(steps)).map((_, index) => index + 1);
+  return [...pull, 0, ...push];
+}

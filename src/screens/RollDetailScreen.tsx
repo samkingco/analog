@@ -12,6 +12,7 @@ import {
   toggleProcessed,
   deleteRoll,
   resetTempFrame,
+  resumeShooting,
 } from "../store/rolls";
 import { filmStockSelectors } from "../store/film-stocks";
 import { cameraBagSelectors } from "../store/camera-bag";
@@ -38,6 +39,9 @@ import {
 } from "../util/camera-settings";
 import { RollsScreenStackParamList } from "./RollsStack";
 import { FilmRollIcon } from "../design-system/icons/FilmRollIcon";
+import { PushIcon } from "../design-system/icons/PushIcon";
+import { PullIcon } from "../design-system/icons/PullIcon";
+import { Toolbar } from "../components/Toolbar";
 
 export type RollDetailScreenRouteProp = RouteProp<
   RollsScreenStackParamList,
@@ -91,12 +95,32 @@ export function RollDetailScreen({ route, navigation }: Props) {
 
   const frameList = roll.frames.reverse();
 
-  const filmInfo: InfoItem[] = [];
+  const importantInfo: InfoItem[] = [];
+  const dateInfo: InfoItem[] = [];
+  const filmMetaInfo: InfoItem[] = [];
+  const extraInfo: InfoItem[] = [];
+
   if (filmStock) {
-    filmInfo.push({
+    importantInfo.push({
       icon: IsoIcon,
       label: `ISO ${filmStock.speed}`,
     });
+    if (roll.pushPull < 0) {
+      importantInfo.push({
+        icon: PullIcon,
+        label: `Pull ${roll.pushPull * -1} ${
+          roll.pushPull === -1 ? "stop" : "stops"
+        }`,
+      });
+    }
+    if (roll.pushPull > 0) {
+      importantInfo.push({
+        icon: PushIcon,
+        label: `Push ${roll.pushPull} ${
+          roll.pushPull === 1 ? "stop" : "stops"
+        }`,
+      });
+    }
     if (filmStock.process || filmStock.type) {
       const label = [
         filmStock.type,
@@ -104,28 +128,27 @@ export function RollDetailScreen({ route, navigation }: Props) {
       ]
         .filter(Boolean)
         .join(`  •  `);
-      filmInfo.push({
+      filmMetaInfo.push({
         icon: FilmRollIcon,
         label,
       });
     }
     if (filmStock.contrast) {
-      filmInfo.push({
+      filmMetaInfo.push({
         icon: ContrastIcon,
         label: `${filmStock.contrast} contrast`,
       });
     }
     if (filmStock.grain) {
-      filmInfo.push({
+      filmMetaInfo.push({
         icon: GrainIcon,
         label: `${filmStock.grain} grain`,
       });
     }
   }
 
-  const extraInfo: InfoItem[] = [];
   if (camera) {
-    extraInfo.push({
+    importantInfo.push({
       icon: CameraIcon,
       label: camera.name,
     });
@@ -150,7 +173,6 @@ export function RollDetailScreen({ route, navigation }: Props) {
     });
   }
 
-  const dateInfo: InfoItem[] = [];
   if (roll.dateLoaded) {
     dateInfo.push({
       label: `Loaded ${format(roll.dateLoaded, "do MMMM")}`,
@@ -171,88 +193,63 @@ export function RollDetailScreen({ route, navigation }: Props) {
     <ScreenBackground>
       <ScrollView style={{ flex: 1 }}>
         <ContentBlock>
-          {roll.hasFramesLeft && !roll.isComplete && !roll.isProcessed ? (
-            <Button
-              variant="primary"
-              style={{ marginBottom: theme.spacing.s12 }}
-              onPress={() => {
-                dispatch(resetTempFrame);
-                navigation.navigate("AddFrame", { rollId: roll.id });
-              }}
-            >
-              New photo
-            </Button>
-          ) : null}
-          {frameList.length > 0 ? (
-            <>
-              <List
-                items={frameList}
-                keyExtractor={(i) => i.id}
-                dividerColor={!roll.isComplete ? "light" : "dark"}
-                renderItem={(item) => {
-                  const shutterSpeedStr = formatShutterSpeed(item.shutterSpeed);
-                  const apertureStr = formatAperture(item.aperture);
-                  const focalLengthStr = formatFocalLength(item.focalLength);
-                  return (
-                    <ListItem
-                      title={`Photo ${item.frameNumber}`}
-                      subtitle={`${shutterSpeedStr}  •  ${apertureStr}  •  ${focalLengthStr}${
-                        item.notes ? `\n${item.notes}` : ""
-                      }`}
-                      onPress={() =>
-                        navigation.navigate("EditFrame", {
-                          rollId,
-                          frameId: item.id,
-                        })
-                      }
-                      isHighlighted={!roll.isComplete}
-                    />
-                  );
-                }}
-              />
-              {!roll.isComplete ? (
-                <Button
-                  variant="secondary"
-                  style={{ marginTop: theme.spacing.s12 }}
-                  onPress={() => dispatch(toggleComplete(roll.id))}
-                >
-                  Finish roll{roll.hasFramesLeft ? " early" : ""}
-                </Button>
-              ) : null}
-              {roll.isComplete && !roll.isProcessed && roll.hasFramesLeft ? (
-                <Button
-                  variant="secondary"
-                  style={{ marginTop: theme.spacing.s12 }}
-                  onPress={() => dispatch(toggleComplete(roll.id))}
-                >
-                  Resume shooting
-                </Button>
-              ) : null}
-              {roll.isComplete && !roll.isProcessed ? (
-                <Button
-                  variant="secondary"
-                  style={{ marginTop: theme.spacing.s12 }}
-                  onPress={() => dispatch(toggleProcessed(roll.id))}
-                >
-                  Mark as processed
-                </Button>
-              ) : null}
-              {roll.isComplete && roll.isProcessed ? (
-                <Button
-                  variant="secondary"
-                  style={{ marginTop: theme.spacing.s12 }}
-                  onPress={() => dispatch(toggleProcessed(roll.id))}
-                >
-                  Mark as unprocessed
-                </Button>
-              ) : null}
-            </>
-          ) : null}
-        </ContentBlock>
-        <ContentBlock>
           <SectionTitle>Info</SectionTitle>
           <List
-            items={filmInfo}
+            items={importantInfo}
+            keyExtractor={(i) => i.label}
+            renderItem={(item) => (
+              <ListItem
+                leftIconType={item.icon ? item.icon : undefined}
+                title={item.label}
+              />
+            )}
+          />
+        </ContentBlock>
+        {frameList.length > 0 ? (
+          <ContentBlock>
+            <SectionTitle>Photos</SectionTitle>
+            <List
+              items={frameList}
+              keyExtractor={(i) => i.id}
+              dividerColor={!roll.isComplete ? "light" : "dark"}
+              renderItem={(item) => {
+                const shutterSpeedStr = formatShutterSpeed(item.shutterSpeed);
+                const apertureStr = formatAperture(item.aperture);
+                const focalLengthStr = formatFocalLength(item.focalLength);
+                return (
+                  <ListItem
+                    title={`Photo ${item.frameNumber}`}
+                    subtitle={`${shutterSpeedStr}  •  ${apertureStr}  •  ${focalLengthStr}${
+                      item.notes ? `\n${item.notes}` : ""
+                    }`}
+                    onPress={() =>
+                      navigation.navigate("EditFrame", {
+                        rollId,
+                        frameId: item.id,
+                      })
+                    }
+                    isHighlighted={!roll.isComplete}
+                  />
+                );
+              }}
+            />
+          </ContentBlock>
+        ) : null}
+        <ContentBlock>
+          <SectionTitle>Meta</SectionTitle>
+          <List
+            items={dateInfo}
+            keyExtractor={(i) => i.label}
+            renderItem={(item) => (
+              <ListItem
+                leftIconType={item.icon ? item.icon : undefined}
+                title={item.label}
+              />
+            )}
+          />
+          <List
+            style={{ marginTop: theme.spacing.s12 }}
+            items={filmMetaInfo}
             keyExtractor={(i) => i.label}
             renderItem={(item) => (
               <ListItem
@@ -264,17 +261,6 @@ export function RollDetailScreen({ route, navigation }: Props) {
           <List
             style={{ marginTop: theme.spacing.s12 }}
             items={extraInfo}
-            keyExtractor={(i) => i.label}
-            renderItem={(item) => (
-              <ListItem
-                leftIconType={item.icon ? item.icon : undefined}
-                title={item.label}
-              />
-            )}
-          />
-          <List
-            style={{ marginTop: theme.spacing.s12 }}
-            items={dateInfo}
             keyExtractor={(i) => i.label}
             renderItem={(item) => (
               <ListItem
@@ -297,6 +283,53 @@ export function RollDetailScreen({ route, navigation }: Props) {
         </ContentBlock>
         <ScrollViewPadding />
       </ScrollView>
+      <Toolbar>
+        {roll.hasFramesLeft && !roll.isComplete && !roll.isProcessed ? (
+          <Button
+            variant="primary"
+            onPress={() => {
+              dispatch(resetTempFrame);
+              navigation.navigate("AddFrame", { rollId: roll.id });
+            }}
+          >
+            New photo
+          </Button>
+        ) : null}
+        {roll.isComplete && !roll.isProcessed ? (
+          <Button
+            variant="primary"
+            onPress={() => dispatch(toggleProcessed(roll.id))}
+          >
+            Mark as processed
+          </Button>
+        ) : null}
+        {roll.isComplete && roll.isProcessed ? (
+          <Button
+            variant="secondary"
+            onPress={() => dispatch(toggleProcessed(roll.id))}
+          >
+            Mark as unprocessed
+          </Button>
+        ) : null}
+        {!roll.isComplete ? (
+          <Button
+            variant="secondary"
+            style={{ marginTop: theme.spacing.s12 }}
+            onPress={() => dispatch(toggleComplete(roll.id))}
+          >
+            Finish roll{roll.hasFramesLeft ? " early" : ""}
+          </Button>
+        ) : null}
+        {roll.isComplete && roll.hasFramesLeft ? (
+          <Button
+            variant="secondary"
+            style={{ marginTop: theme.spacing.s12 }}
+            onPress={() => dispatch(resumeShooting(roll.id))}
+          >
+            Resume shooting
+          </Button>
+        ) : null}
+      </Toolbar>
     </ScreenBackground>
   );
 }

@@ -11,6 +11,7 @@ export interface Roll {
   cameraId: Camera["id"];
   frames: Frame[];
   maxFrameCount: number;
+  pushPull: number;
   dateLoaded: number;
   dateCompleted?: number;
   dateProcessed?: number;
@@ -57,6 +58,7 @@ const blankRoll: Roll = {
   cameraId: "",
   frames: [],
   maxFrameCount: 0,
+  pushPull: 0,
   dateLoaded: Date.now(),
 };
 
@@ -160,6 +162,11 @@ export const { actions, reducer } = createSlice({
         roll.dateCompleted = Date.now();
       }
     },
+    resumeShooting: (state, action: PayloadAction<{ rollId: string }>) => {
+      const roll = state.rolls[action.payload.rollId];
+      roll.dateCompleted = undefined;
+      roll.dateProcessed = undefined;
+    },
     toggleProcessed: (state, action: PayloadAction<{ rollId: string }>) => {
       const roll = state.rolls[action.payload.rollId];
       if (roll.dateProcessed) {
@@ -255,6 +262,12 @@ export function deleteRoll(rollId: string) {
 export function toggleComplete(rollId: string) {
   return function (dispatch: Dispatch) {
     dispatch(actions.toggleComplete({ rollId }));
+  };
+}
+
+export function resumeShooting(rollId: string) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.resumeShooting({ rollId }));
   };
 }
 

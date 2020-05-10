@@ -20,6 +20,7 @@ import {
 import { stringToNumber } from "../util/string-to-number";
 import { CameraBagStackParamList } from "./CameraBagStack";
 import { Subhead } from "../design-system/Subhead";
+import { Toolbar } from "../components/Toolbar";
 
 type EditCameraLensScreenRouteProp = RouteProp<
   CameraBagStackParamList,
@@ -151,39 +152,38 @@ export function EditCameraLensScreen({
               style={{ marginTop: theme.spacing.s12 }}
             />
           </ContentBlock>
-          <ContentBlock>
-            <Button
-              isDisabled={!canSubmit}
-              onPress={() => {
-                dispatch(
-                  updateCameraLens({
-                    ...cameraLens,
-                    name: localName,
-                    minFocalLength: localMinFocalLength,
-                    maxFocalLength: localMaxFocalLength,
-                    minAperture: localMinAperture,
-                    maxAperture: localMaxAperture,
-                  }),
-                );
-                navigation.goBack();
-              }}
-            >
-              Save
-            </Button>
-          </ContentBlock>
-          <ContentBlock>
-            <Button
-              variant="danger"
-              onPress={() => {
-                dispatch(deleteCameraLens(cameraLens.id));
-                navigation.goBack();
-              }}
-            >
-              Delete lens
-            </Button>
-          </ContentBlock>
           <ScrollViewPadding />
         </ScrollView>
+        <Toolbar>
+          <Button
+            isDisabled={!canSubmit}
+            onPress={() => {
+              dispatch(
+                updateCameraLens({
+                  ...cameraLens,
+                  name: localName,
+                  minFocalLength: localMinFocalLength,
+                  maxFocalLength: localMaxFocalLength,
+                  minAperture: localMinAperture,
+                  maxAperture: localMaxAperture,
+                }),
+              );
+              navigation.goBack();
+            }}
+          >
+            Save
+          </Button>
+          <Button
+            variant="danger"
+            onPress={() => {
+              dispatch(deleteCameraLens(cameraLens.id));
+              navigation.goBack();
+            }}
+            style={{ marginTop: theme.spacing.s12 }}
+          >
+            Delete lens
+          </Button>
+        </Toolbar>
       </KeyboardAvoidingView>
     </ScreenBackground>
   );

@@ -26,6 +26,7 @@ import {
 } from "../util/camera-settings";
 import { Subhead } from "../design-system/Subhead";
 import { RollsScreenStackParamList } from "./RollsStack";
+import { Toolbar } from "../components/Toolbar";
 
 export type EditFrameScreenRouteProp = RouteProp<
   RollsScreenStackParamList,
@@ -176,38 +177,37 @@ export function EditFrameScreen({ route, navigation }: EditFrameScreenProps) {
               style={{ marginTop: theme.spacing.s12 }}
             />
           </ContentBlock>
-          <ContentBlock>
-            <Button
-              onPress={() => {
-                dispatch(
-                  updateFrame(rollId, {
-                    ...frame,
-                    lensId: localLensId,
-                    shutterSpeed: localShutterSpeed,
-                    aperture: localAperture,
-                    focalLength: localFocalLength,
-                    notes: localNotes,
-                  }),
-                );
-                navigation.pop();
-              }}
-            >
-              Save
-            </Button>
-          </ContentBlock>
-          <ContentBlock>
-            <Button
-              variant="danger"
-              onPress={() => {
-                dispatch(deleteFrame(rollId, frame.id));
-                navigation.pop();
-              }}
-            >
-              Delete frame
-            </Button>
-          </ContentBlock>
           <ScrollViewPadding />
         </ScrollView>
+        <Toolbar>
+          <Button
+            onPress={() => {
+              dispatch(
+                updateFrame(rollId, {
+                  ...frame,
+                  lensId: localLensId,
+                  shutterSpeed: localShutterSpeed,
+                  aperture: localAperture,
+                  focalLength: localFocalLength,
+                  notes: localNotes,
+                }),
+              );
+              navigation.pop();
+            }}
+          >
+            Save
+          </Button>
+          <Button
+            variant="danger"
+            onPress={() => {
+              dispatch(deleteFrame(rollId, frame.id));
+              navigation.pop();
+            }}
+            style={{ marginTop: theme.spacing.s12 }}
+          >
+            Delete frame
+          </Button>
+        </Toolbar>
       </KeyboardAvoidingView>
     </ScreenBackground>
   );

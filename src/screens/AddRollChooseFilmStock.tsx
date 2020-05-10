@@ -64,7 +64,7 @@ export function AddRollChooseFilmStockScreen({
                   }`}
                   onPress={() => {
                     dispatch(updateTempRoll({ filmStockId: item.id }));
-                    navigation.navigate("AddRollChooseCamera");
+                    navigation.navigate("AddRollInfo");
                   }}
                 />
               )}

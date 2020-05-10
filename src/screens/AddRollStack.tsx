@@ -4,11 +4,11 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { theme } from "../theme";
 import { NavigationHeader } from "../components/NavigationHeader";
 import { AddRollChooseFilmStockScreen } from "./AddRollChooseFilmStock";
-import { AddRollChooseCameraScreen } from "./AddRollChooseCameraScreen";
+import { AddRollInfoScreen } from "./AddRollInfoScreen";
 
 export type AddRollStackParamList = {
   AddRollChooseFilmStock: undefined;
-  AddRollChooseCamera: undefined;
+  AddRollInfo: undefined;
 };
 
 const Stack = createStackNavigator<AddRollStackParamList>();
@@ -31,10 +31,10 @@ export function AddRollStack() {
           }}
         />
         <Stack.Screen
-          name="AddRollChooseCamera"
-          component={AddRollChooseCameraScreen}
+          name="AddRollInfo"
+          component={AddRollInfoScreen}
           options={{
-            title: "Choose camera",
+            title: "Roll info",
           }}
         />
       </Stack.Navigator>
