@@ -1,5 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Dispatch, AppState } from "./";
+import { uuid } from "../util/uuid";
 
 export interface Camera {
   id: string;
@@ -24,9 +25,29 @@ interface CameraBagState {
   cameraLenses: {
     [id: string]: CameraLens;
   };
+  tempCamera: Camera;
+  tempCameraLens: CameraLens;
 }
 
+const blankCamera: Camera = {
+  id: "camera_blank",
+  name: "",
+  numberOfFrames: 0,
+  lensIds: [],
+};
+
+const blankCameraLens: CameraLens = {
+  id: "lens_blank",
+  name: "",
+  minFocalLength: 0,
+  maxFocalLength: 0,
+  minAperture: 0,
+  maxAperture: 0,
+};
+
 const initialState: CameraBagState = {
+  tempCamera: blankCamera,
+  tempCameraLens: blankCameraLens,
   cameras: {
     cam_1: {
       id: "cam_1",
@@ -90,12 +111,66 @@ export const { actions, reducer } = createSlice({
   initialState,
   reducers: {
     reset: () => initialState,
+    resetTempCameraLens: (state) => {
+      state.tempCameraLens = blankCameraLens;
+    },
+    updateTempCameraLens: (
+      state,
+      action: PayloadAction<Partial<CameraLens>>,
+    ) => {
+      state.tempCameraLens = {
+        ...state.tempCameraLens,
+        ...action.payload,
+      };
+    },
+    saveTempCameraLens: (
+      state,
+      action: PayloadAction<{ cameraId?: string }>,
+    ) => {
+      const cameraId = action.payload.cameraId;
+      const lensId = uuid("lens");
+      state.cameraLenses[lensId] = {
+        ...state.tempCameraLens,
+        id: lensId,
+        maxFocalLength:
+          state.tempCameraLens.maxFocalLength > 0
+            ? state.tempCameraLens.maxFocalLength
+            : state.tempCameraLens.minFocalLength,
+      };
+
+      if (cameraId) {
+        state.cameras[cameraId].lensIds = [
+          ...state.cameras[cameraId].lensIds,
+          lensId,
+        ];
+      }
+
+      state.tempCameraLens = blankCameraLens;
+    },
   },
 });
 
 export function reset() {
   return function (dispatch: Dispatch) {
     dispatch(actions.reset());
+  };
+}
+
+export function resetTempCameraLens() {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.resetTempCameraLens());
+  };
+}
+
+export function updateTempCameraLens(lens: Partial<CameraLens>) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.updateTempCameraLens(lens));
+  };
+}
+
+export function saveTempCameraLens(cameraId?: string) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.saveTempCameraLens({ cameraId }));
   };
 }
 
@@ -144,10 +219,15 @@ function lensesForCamera(state: AppState, cameraId: string): CameraLens[] {
   return list;
 }
 
+function tempCameraLens(state: AppState): CameraLens {
+  return state.cameraBag.tempCameraLens;
+}
+
 export const cameraBagSelectors = {
   cameraById,
   camerasList,
   lensById,
   lensesList,
   lensesForCamera,
+  tempCameraLens,
 };
