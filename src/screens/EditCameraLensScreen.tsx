@@ -176,7 +176,7 @@ export function EditCameraLensScreen({
               variant="danger"
               onPress={() => {
                 dispatch(deleteCameraLens(cameraLens.id));
-                navigation.popToTop();
+                navigation.goBack();
               }}
             >
               Delete lens

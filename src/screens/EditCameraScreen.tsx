@@ -5,8 +5,6 @@ import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import {
   cameraBagSelectors,
-  updateTempCamera,
-  saveTempCamera,
   updateCamera,
   deleteCamera,
 } from "../store/camera-bag";
@@ -122,7 +120,7 @@ export function EditCameraScreen({ route, navigation }: EditCameraScreenProps) {
                     lensIds: localLensIds,
                   }),
                 );
-                navigation.navigate("CameraBag");
+                navigation.pop();
               }}
             >
               Save

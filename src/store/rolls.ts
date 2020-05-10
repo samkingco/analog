@@ -352,13 +352,13 @@ function rollsList(state: AppState): ComputedRoll[] {
   return list;
 }
 
-function rollsListGrouped(
-  state: AppState,
-): {
+interface GroupedRollsList {
   shooting: ComputedRoll[];
   complete: ComputedRoll[];
   processed: ComputedRoll[];
-} {
+}
+
+function rollsListGrouped(state: AppState): GroupedRollsList {
   const shooting = [];
   const complete = [];
   const processed = [];
@@ -380,6 +380,18 @@ function rollsListGrouped(
   return { shooting, complete, processed };
 }
 
+function rollsListForCameraGrouped(
+  state: AppState,
+  cameraId: string,
+): GroupedRollsList {
+  const fullGrouping = rollsListGrouped(state);
+  return {
+    shooting: fullGrouping.shooting.filter((i) => i.cameraId === cameraId),
+    complete: fullGrouping.complete.filter((i) => i.cameraId === cameraId),
+    processed: fullGrouping.processed.filter((i) => i.cameraId === cameraId),
+  };
+}
+
 function tempRoll(state: AppState): Roll {
   return state.rolls.tempRoll;
 }
@@ -392,6 +404,7 @@ export const rollSelectors = {
   rollById,
   rollsList,
   rollsListGrouped,
+  rollsListForCameraGrouped,
   tempRoll,
   tempFrame,
 };

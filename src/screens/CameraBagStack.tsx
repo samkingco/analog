@@ -6,9 +6,12 @@ import { NavigationHeader } from "../components/NavigationHeader";
 import { CameraBagScreen } from "./CameraBagScreen";
 import { EditCameraScreen } from "./EditCameraScreen";
 import { EditCameraLensScreen } from "./EditCameraLensScreen";
+import { CameraDetailScreen } from "./CameraDetailScreen";
+import { RollDetailScreen } from "./RollDetailScreen";
 
 export type CameraBagStackParamList = {
   CameraBag: undefined;
+  CameraDetail: { cameraId: string };
   EditCamera: { cameraId: string };
   EditCameraLens: { cameraLensId: string };
 };
@@ -30,6 +33,13 @@ export function CameraBagStack() {
           component={CameraBagScreen}
           options={{
             title: "Camera bag",
+          }}
+        />
+        <Stack.Screen
+          name="CameraDetail"
+          component={CameraDetailScreen}
+          options={{
+            title: "Camera",
           }}
         />
         <Stack.Screen

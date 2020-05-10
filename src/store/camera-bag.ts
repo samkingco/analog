@@ -308,7 +308,7 @@ function lensesForCamera(state: AppState, cameraId: string): CameraLens[] {
   if (camera) {
     for (const id of camera.lensIds) {
       const result = lensById(state, id);
-      if (result) {
+      if (result && !result.isArchived) {
         list.push(result);
       }
     }
