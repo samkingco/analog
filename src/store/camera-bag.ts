@@ -147,6 +147,21 @@ export const { actions, reducer } = createSlice({
 
       state.tempCameraLens = blankCameraLens;
     },
+    updateLens: (
+      state,
+      action: PayloadAction<{ lens: Partial<CameraLens> }>,
+    ) => {
+      const lensId = action.payload.lens.id;
+      if (!lensId) {
+        return;
+      }
+      if (state.cameraLenses[lensId]) {
+        state.cameraLenses[lensId] = {
+          ...state.cameraLenses[lensId],
+          ...action.payload.lens,
+        };
+      }
+    },
   },
 });
 
@@ -171,6 +186,12 @@ export function updateTempCameraLens(lens: Partial<CameraLens>) {
 export function saveTempCameraLens(cameraId?: string) {
   return function (dispatch: Dispatch) {
     dispatch(actions.saveTempCameraLens({ cameraId }));
+  };
+}
+
+export function updateLens(lens: Partial<CameraLens>) {
+  return function (dispatch: Dispatch) {
+    dispatch(actions.updateLens({ lens }));
   };
 }
 

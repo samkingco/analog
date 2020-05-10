@@ -13,14 +13,14 @@ import { RollsStack } from "./screens/RollsStack";
 import { AddRollStack } from "./screens/AddRollStack";
 import { AddFrameScreen } from "./screens/AddFrameScreen";
 import { CameraBagStack } from "./screens/CameraBagStack";
-import { AddLensScreen } from "./screens/AddLensScreen";
+import { AddCameraLensScreen } from "./screens/AddCameraLensScreen";
 
 export type RootStackParamList = {
   RollsStack: undefined;
   AddRollStack: undefined;
   AddFrame: { rollId: string };
   CameraBagStack: undefined;
-  AddLens: undefined;
+  AddCameraLens: { cameraId?: string };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -81,8 +81,8 @@ export const App = () => {
               }}
             />
             <Stack.Screen
-              name="AddLens"
-              component={AddLensScreen}
+              name="AddCameraLens"
+              component={AddCameraLensScreen}
               options={{
                 title: "Add lens",
                 header: (props) => (

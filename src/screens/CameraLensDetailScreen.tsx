@@ -1,31 +1,29 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../App";
 import { ScreenBackground } from "../components/ScreenBackground";
 import { KeyboardAvoidingView } from "../components/KeyboardAvoidingView";
 import { ContentBlock } from "../design-system/ContentBlock";
 import { ScrollViewPadding } from "../components/ScrollViewPadding";
-import { Headline } from "../design-system/Headline";
 import { TextInput } from "../design-system/TextInput";
 import { theme } from "../theme";
 import { HorizontalScrollPicker } from "../design-system/HorizontalScrollPicker";
 import { makeApertures } from "../util/camera-settings";
 import { Button } from "../design-system/Button";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  cameraBagSelectors,
-  updateTempCameraLens,
-  resetTempCameraLens,
-  saveTempCameraLens,
-} from "../store/camera-bag";
+import { cameraBagSelectors, updateLens } from "../store/camera-bag";
 import { stringToNumber } from "../util/string-to-number";
+import { CameraBagStackParamList } from "./CameraBagStack";
+import { Subhead } from "../design-system/Subhead";
 
-type AddLensScreenRouteProp = RouteProp<RootStackParamList, "AddLens">;
+type AddLensScreenRouteProp = RouteProp<
+  CameraBagStackParamList,
+  "CameraLensDetail"
+>;
 type AddLensScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "AddLens"
+  CameraBagStackParamList,
+  "CameraLensDetail"
 >;
 
 type AddLensScreenProps = {
@@ -33,26 +31,55 @@ type AddLensScreenProps = {
   navigation: AddLensScreenNavigationProp;
 };
 
-export function AddLensScreen({ route, navigation }: AddLensScreenProps) {
-  const dispatch = useDispatch();
-  const tempCameraLens = useSelector(cameraBagSelectors.tempCameraLens);
-  // TODO: Don't allow you to set a max lower than a min
-  const apertures = useMemo(() => makeApertures(), []);
+const apertures = makeApertures();
 
-  useEffect(() => {
-    dispatch(
-      updateTempCameraLens({
-        minAperture: apertures[0].value,
-        maxAperture: apertures[apertures.length - 1].value,
-      }),
+export function CameraLensDetailScreen({
+  route,
+  navigation,
+}: AddLensScreenProps) {
+  const { cameraLensId } = route.params;
+  const dispatch = useDispatch();
+  const cameraLens = useSelector((s) =>
+    cameraBagSelectors.lensById(s, cameraLensId),
+  );
+
+  const [localName, setLocalName] = useState(
+    (cameraLens && cameraLens.name) || "",
+  );
+  const [localMinFocalLength, setLocalMinFocalLength] = useState(
+    cameraLens && cameraLens.minFocalLength,
+  );
+  const [localMaxFocalLength, setLocalMaxFocalLength] = useState(
+    cameraLens && cameraLens.maxFocalLength !== cameraLens.minFocalLength
+      ? cameraLens.maxFocalLength
+      : 0,
+  );
+  const [localMinAperture, setLocalMinAperture] = useState(
+    cameraLens && cameraLens.minAperture,
+  );
+  const [localMaxAperture, setLocalMaxAperture] = useState(
+    cameraLens && cameraLens.maxAperture,
+  );
+
+  if (!cameraLens) {
+    return (
+      <ScreenBackground>
+        <Subhead>No camera lens found</Subhead>
+      </ScreenBackground>
     );
-  }, []);
+  }
+
+  const minApertureIndex = apertures.findIndex(
+    (i) => i.value === localMinAperture,
+  );
+  const maxApertureIndex = apertures.findIndex(
+    (i) => i.value === localMaxAperture,
+  );
+
+  navigation.setOptions({ title: cameraLens.name });
 
   const canSubmit = Boolean(
-    tempCameraLens.name &&
-      tempCameraLens.minFocalLength &&
-      tempCameraLens.minAperture &&
-      tempCameraLens.maxAperture,
+    localName && localMinFocalLength && localMinAperture && localMaxAperture,
   );
 
   return (
@@ -62,10 +89,8 @@ export function AddLensScreen({ route, navigation }: AddLensScreenProps) {
           <ContentBlock>
             <TextInput
               label="Name"
-              value={tempCameraLens.name}
-              onChange={(value) =>
-                dispatch(updateTempCameraLens({ name: value }))
-              }
+              value={localName}
+              onChange={setLocalName}
               placeholder={"e.g. Mamiya 43mm f/4.5"}
             />
             <View
@@ -77,17 +102,11 @@ export function AddLensScreen({ route, navigation }: AddLensScreenProps) {
               <TextInput
                 label="Min focal length"
                 value={`${
-                  tempCameraLens.minFocalLength === 0
-                    ? ""
-                    : tempCameraLens.minFocalLength
+                  localMinFocalLength === 0 ? "" : localMinFocalLength
                 }`}
-                onChange={(value) =>
-                  dispatch(
-                    updateTempCameraLens({
-                      minFocalLength: stringToNumber(value),
-                    }),
-                  )
-                }
+                onChange={(value) => {
+                  setLocalMinFocalLength(stringToNumber(value));
+                }}
                 placeholder={"0"}
                 inputProps={{ keyboardType: "number-pad" }}
                 style={{ marginRight: theme.spacing.s12 / 2, flex: 1 }}
@@ -95,18 +114,12 @@ export function AddLensScreen({ route, navigation }: AddLensScreenProps) {
               <TextInput
                 label="Max focal length"
                 value={`${
-                  tempCameraLens.maxFocalLength === 0
-                    ? ""
-                    : tempCameraLens.maxFocalLength
+                  localMaxFocalLength === 0 ? "" : localMaxFocalLength
                 }`}
                 onChange={(value) => {
-                  dispatch(
-                    updateTempCameraLens({
-                      maxFocalLength: stringToNumber(value),
-                    }),
-                  );
+                  setLocalMaxFocalLength(stringToNumber(value));
                 }}
-                placeholder={`${tempCameraLens.minFocalLength}`}
+                placeholder={`${localMinFocalLength}`}
                 inputProps={{ keyboardType: "number-pad" }}
                 style={{ marginLeft: theme.spacing.s12 / 2, flex: 1 }}
               />
@@ -114,22 +127,22 @@ export function AddLensScreen({ route, navigation }: AddLensScreenProps) {
             <HorizontalScrollPicker
               label="Min aperture"
               items={apertures}
-              initialIndex={0}
+              initialIndex={minApertureIndex}
               keyExtractor={(i) => i.label}
               renderDisplayValue={(item) => item.label}
               onSelect={(item) => {
-                dispatch(updateTempCameraLens({ minAperture: item.value }));
+                setLocalMinAperture(item.value);
               }}
               style={{ marginTop: theme.spacing.s12 }}
             />
             <HorizontalScrollPicker
               label="Max aperture"
               items={apertures}
-              initialIndex={apertures.length - 1}
+              initialIndex={maxApertureIndex}
               keyExtractor={(i) => i.label}
               renderDisplayValue={(item) => item.label}
               onSelect={(item) => {
-                dispatch(updateTempCameraLens({ maxAperture: item.value }));
+                setLocalMaxAperture(item.value);
               }}
               style={{ marginTop: theme.spacing.s12 }}
             />
@@ -138,11 +151,20 @@ export function AddLensScreen({ route, navigation }: AddLensScreenProps) {
             <Button
               isDisabled={!canSubmit}
               onPress={() => {
-                dispatch(saveTempCameraLens());
-                navigation.navigate("CameraBagStack");
+                dispatch(
+                  updateLens({
+                    ...cameraLens,
+                    name: localName,
+                    minFocalLength: localMinFocalLength,
+                    maxFocalLength: localMaxFocalLength,
+                    minAperture: localMinAperture,
+                    maxAperture: localMaxAperture,
+                  }),
+                );
+                navigation.goBack();
               }}
             >
-              Add lens
+              Save
             </Button>
           </ContentBlock>
           <ScrollViewPadding />

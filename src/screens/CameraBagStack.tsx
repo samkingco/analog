@@ -4,11 +4,12 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { theme } from "../theme";
 import { NavigationHeader } from "../components/NavigationHeader";
 import { CameraBagScreen } from "./CameraBagScreen";
+import { CameraLensDetailScreen } from "./CameraLensDetailScreen";
 
 export type CameraBagStackParamList = {
   CameraBag: undefined;
   CameraDetail: undefined;
-  LensDetail: undefined;
+  CameraLensDetail: { cameraLensId: string };
 };
 
 const Stack = createStackNavigator<CameraBagStackParamList>();
@@ -28,6 +29,13 @@ export function CameraBagStack() {
           component={CameraBagScreen}
           options={{
             title: "Camera bag",
+          }}
+        />
+        <Stack.Screen
+          name="CameraLensDetail"
+          component={CameraLensDetailScreen}
+          options={{
+            title: "Lens",
           }}
         />
       </Stack.Navigator>

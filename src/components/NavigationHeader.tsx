@@ -6,7 +6,6 @@ import { Title } from "../design-system/Title";
 import { theme } from "../theme";
 import { Icon } from "../design-system/Icon";
 import { ArrowLeftIcon } from "../design-system/icons/ArrowLeftIcon";
-import { CameraBagIcon } from "../design-system/icons/CameraBagIcon";
 import { CloseIcon } from "../design-system/icons/CloseIcon";
 import { useNavigationState } from "@react-navigation/native";
 
@@ -73,7 +72,7 @@ export function NavigationHeader({
         <View>{headerRight ? headerRight : null}</View>
       </View>
       <View style={styles.largeTitle}>
-        <Title>{title}</Title>
+        <Title numberOfLines={1}>{title}</Title>
       </View>
     </Animated.View>
   );

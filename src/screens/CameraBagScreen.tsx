@@ -52,12 +52,21 @@ export function CameraBagScreen({ navigation }: CameraBagListScreenProps) {
           items={lenses}
           keyExtractor={(i) => i.id}
           renderItem={(item) => (
-            <ListItem title={item.name} onPress={() => {}} />
+            <ListItem
+              title={item.name}
+              onPress={() =>
+                navigation.navigate("CameraLensDetail", {
+                  cameraLensId: item.id,
+                })
+              }
+            />
           )}
         />
         <Button
           variant="secondary"
-          onPress={() => navigation.navigate("AddLens")}
+          onPress={() =>
+            navigation.navigate("AddCameraLens", { cameraId: undefined })
+          }
         >
           Add lens
         </Button>
