@@ -1,25 +1,25 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { RouteProp, CompositeNavigationProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { useSelector } from "react-redux";
 import { cameraBagSelectors } from "../store/camera-bag";
 import { RootStackParamList } from "../App";
-import { ScreenBackground } from "../components/ScreenBackground";
 import { theme } from "../theme";
+import { ScreenBackground } from "../components/ScreenBackground";
 import { ContentBlock } from "../design-system/ContentBlock";
 import { List } from "../design-system/List";
 import { SectionTitle } from "../design-system/SectionTitle";
 import { Button } from "../design-system/Button";
 import { ListItem } from "../design-system/ListItem";
-import { CameraBagStackParamList } from "./CameraBagModalScreen";
+import { CameraBagStackParamList } from "./CameraBagStack";
 
 type CameraBagListScreenRouteProp = RouteProp<
   CameraBagStackParamList,
-  "CameraBagList"
+  "CameraBag"
 >;
 type CameraBagNavigationProp = CompositeNavigationProp<
-  StackNavigationProp<RootStackParamList, "Rolls">,
-  StackNavigationProp<CameraBagStackParamList, "CameraBagList">
+  StackNavigationProp<RootStackParamList, "RollsStack">,
+  StackNavigationProp<CameraBagStackParamList, "CameraBag">
 >;
 
 type CameraBagListScreenProps = {
@@ -27,7 +27,7 @@ type CameraBagListScreenProps = {
   navigation: CameraBagNavigationProp;
 };
 
-export function CameraBagListScreen({ navigation }: CameraBagListScreenProps) {
+export function CameraBagScreen({ navigation }: CameraBagListScreenProps) {
   const cameras = useSelector(cameraBagSelectors.camerasList);
   const lenses = useSelector(cameraBagSelectors.lensesList);
 

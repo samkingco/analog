@@ -25,32 +25,24 @@ import {
   makeFocalLengths,
 } from "../util/camera-settings";
 
-type AddFrameModalScreenRouteProp = RouteProp<
-  RootStackParamList,
-  "AddFrameModal"
->;
+type AddFrameScreenRouteProp = RouteProp<RootStackParamList, "AddFrame">;
 type AddFrameNavigationProp = StackNavigationProp<
   RootStackParamList,
-  "AddFrameModal"
+  "AddFrame"
 >;
 
-type AddFrameModalScreenProps = {
-  route: AddFrameModalScreenRouteProp;
+type AddFrameScreenProps = {
+  route: AddFrameScreenRouteProp;
   navigation: AddFrameNavigationProp;
 };
 
-export function AddFrameModalScreen({
-  route,
-  navigation,
-}: AddFrameModalScreenProps) {
+export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
   const dispatch = useDispatch();
   const { rollId } = route.params;
   const roll = useSelector((s) => rollSelectors.rollById(s, rollId));
   const prevFrame = roll && roll.frames[roll.frames.length - 1];
   const tempFrame = useSelector(rollSelectors.tempFrame);
   const [hasChangedLens, setHasChangedLens] = useState(false);
-
-  console.log({ tempFrame });
 
   const shutterSpeeds = useMemo(() => makeShutterSpeeds(), []);
   const initialShutterSpeedIndex = useMemo(

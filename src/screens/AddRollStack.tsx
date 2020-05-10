@@ -1,10 +1,10 @@
 import React from "react";
+import { View } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { theme } from "../theme";
 import { NavigationHeader } from "../components/NavigationHeader";
 import { AddRollChooseFilmStockScreen } from "./AddRollChooseFilmStock";
 import { AddRollChooseCameraScreen } from "./AddRollChooseCameraScreen";
-import { theme } from "../theme";
-import { View } from "react-native";
 
 export type AddRollStackParamList = {
   AddRollChooseFilmStock: undefined;
@@ -13,7 +13,7 @@ export type AddRollStackParamList = {
 
 const Stack = createStackNavigator<AddRollStackParamList>();
 
-export function AddRollModalScreen() {
+export function AddRollStack() {
   return (
     <View style={{ backgroundColor: theme.colors.background.default, flex: 1 }}>
       <Stack.Navigator

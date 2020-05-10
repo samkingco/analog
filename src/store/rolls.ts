@@ -24,6 +24,7 @@ export interface ComputedRoll extends Roll {
   hasFramesLeft: boolean;
   isComplete: boolean;
   isProcessed: boolean;
+  frames: ComputedFrame[];
 }
 
 export interface Frame {
@@ -34,6 +35,11 @@ export interface Frame {
   aperture: number;
   shutterSpeed: number;
   notes?: string;
+}
+
+export interface ComputedFrame extends Frame {
+  frameNumber: number;
+  maxFrameCount: number;
 }
 
 interface FilmLogState {
@@ -298,10 +304,19 @@ function rollById(state: AppState, id: string): ComputedRoll | undefined {
   const camera = cameraBagSelectors.cameraById(state, roll.cameraId);
   const framesTaken = roll.frames.length;
 
+  const frames = roll.frames.map((frame, index) => {
+    return {
+      ...frame,
+      frameNumber: index + 1,
+      maxFrameCount: roll.maxFrameCount,
+    };
+  });
+
   return {
     ...roll,
     filmStockName: filmStock ? filmStock.name : "",
     cameraName: camera ? camera.name : "",
+    frames,
     framesTaken,
     hasFramesLeft: framesTaken < roll.maxFrameCount,
     isComplete: Boolean(roll.dateCompleted),
@@ -358,6 +373,9 @@ function rollsListGrouped(
       processed.push(result);
     }
   }
+
+  // TODO: sort each list by date e.g. loaded, completed, processed
+  // newest should be at the top
   return { shooting, complete, processed };
 }
 

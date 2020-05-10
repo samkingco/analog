@@ -25,14 +25,14 @@ import {
   makeFocalLengths,
 } from "../util/camera-settings";
 import { Subhead } from "../design-system/Subhead";
-import { RollsScreenStackParamList } from "./RollsScreen";
+import { RollsScreenStackParamList } from "./RollsStack";
 
 export type FrameDetailScreenRouteProp = RouteProp<
   RollsScreenStackParamList,
   "FrameDetail"
 >;
 export type FrameDetailNavigationProp = CompositeNavigationProp<
-  StackNavigationProp<RootStackParamList, "Rolls">,
+  StackNavigationProp<RootStackParamList, "RollsStack">,
   StackNavigationProp<RollsScreenStackParamList, "FrameDetail">
 >;
 
@@ -112,6 +112,8 @@ export function FrameDetailScreen({
       </ScreenBackground>
     );
   }
+
+  navigation.setOptions({ title: `Photo #${frame.frameNumber}` });
 
   return (
     <ScreenBackground>

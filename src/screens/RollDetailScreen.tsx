@@ -36,14 +36,14 @@ import {
   formatAperture,
   formatFocalLength,
 } from "../util/camera-settings";
-import { RollsScreenStackParamList } from "./RollsScreen";
+import { RollsScreenStackParamList } from "./RollsStack";
 
 export type RollDetailScreenRouteProp = RouteProp<
   RollsScreenStackParamList,
   "RollDetail"
 >;
 export type RollDetailScreenNavigationProp = CompositeNavigationProp<
-  StackNavigationProp<RootStackParamList, "Rolls">,
+  StackNavigationProp<RootStackParamList, "RollsStack">,
   StackNavigationProp<RollsScreenStackParamList, "RollDetail">
 >;
 
@@ -88,16 +88,7 @@ export function RollDetailScreen({ route, navigation }: Props) {
 
   navigation.setOptions({ title: roll.filmStockName });
 
-  const frameList: FrameListItem[] = roll.frames
-    .map((frame, index) => {
-      return {
-        ...frame,
-        frameNumber: index + 1,
-        maxFrameCount: roll.maxFrameCount,
-      };
-    })
-    .filter(Boolean)
-    .reverse();
+  const frameList = roll.frames.reverse();
 
   const filmInfo: InfoItem[] = [];
   if (filmStock) {
@@ -173,7 +164,7 @@ export function RollDetailScreen({ route, navigation }: Props) {
               style={{ marginBottom: theme.spacing.s12 }}
               onPress={() => {
                 dispatch(resetTempFrame);
-                navigation.navigate("AddFrameModal", { rollId: roll.id });
+                navigation.navigate("AddFrame", { rollId: roll.id });
               }}
             >
               New photo
@@ -191,10 +182,10 @@ export function RollDetailScreen({ route, navigation }: Props) {
                   const focalLengthStr = formatFocalLength(item.focalLength);
                   return (
                     <ListItem
-                      title={`${item.frameNumber} / ${item.maxFrameCount}${
+                      title={`Photo ${item.frameNumber}`}
+                      subtitle={`${shutterSpeedStr}  •  ${apertureStr}  •  ${focalLengthStr}${
                         item.notes ? `\n${item.notes}` : ""
                       }`}
-                      subtitle={`${shutterSpeedStr} • ${apertureStr} • ${focalLengthStr}`}
                       onPress={() =>
                         navigation.navigate("FrameDetail", {
                           rollId,

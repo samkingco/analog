@@ -9,17 +9,17 @@ import {
 import { store } from "./store";
 import { theme } from "./theme";
 import { NavigationHeader } from "./components/NavigationHeader";
-import { CameraBagModalScreen } from "./screens/CameraBagModalScreen";
+import { RollsStack } from "./screens/RollsStack";
+import { AddRollStack } from "./screens/AddRollStack";
+import { AddFrameScreen } from "./screens/AddFrameScreen";
+import { CameraBagStack } from "./screens/CameraBagStack";
 import { AddLensScreen } from "./screens/AddLensScreen";
-import { AddRollModalScreen } from "./screens/AddRollModalScreen";
-import { RollsScreen } from "./screens/RollsScreen";
-import { AddFrameModalScreen } from "./screens/AddFrameModalScreen";
 
 export type RootStackParamList = {
-  Rolls: undefined;
-  AddRollModal: undefined;
-  AddFrameModal: { rollId: string };
-  CameraBagModal: undefined;
+  RollsStack: undefined;
+  AddRollStack: undefined;
+  AddFrame: { rollId: string };
+  CameraBagStack: undefined;
   AddLens: undefined;
 };
 
@@ -34,7 +34,7 @@ export const App = () => {
           style={{ backgroundColor: theme.colors.background.default, flex: 1 }}
         >
           <Stack.Navigator
-            initialRouteName="Rolls"
+            initialRouteName="RollsStack"
             headerMode="screen"
             screenOptions={{
               cardOverlayEnabled: true,
@@ -43,23 +43,23 @@ export const App = () => {
             }}
           >
             <Stack.Screen
-              name="Rolls"
-              component={RollsScreen}
+              name="RollsStack"
+              component={RollsStack}
               options={{
                 header: () => null,
               }}
             />
             <Stack.Screen
-              name="AddRollModal"
-              component={AddRollModalScreen}
+              name="AddRollStack"
+              component={AddRollStack}
               options={{
                 header: () => null,
                 ...TransitionPresets.ModalPresentationIOS,
               }}
             />
             <Stack.Screen
-              name="AddFrameModal"
-              component={AddFrameModalScreen}
+              name="AddFrame"
+              component={AddFrameScreen}
               options={{
                 title: "New photo",
                 header: (props) => (
@@ -73,8 +73,8 @@ export const App = () => {
               }}
             />
             <Stack.Screen
-              name="CameraBagModal"
-              component={CameraBagModalScreen}
+              name="CameraBagStack"
+              component={CameraBagStack}
               options={{
                 header: () => null,
                 ...TransitionPresets.ModalPresentationIOS,

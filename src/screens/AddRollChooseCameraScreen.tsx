@@ -15,7 +15,7 @@ import { CheckIcon } from "../design-system/icons/CheckIcon";
 import { BlankIcon } from "../design-system/icons/BlankIcon";
 import { SectionTitle } from "../design-system/SectionTitle";
 import { ListItem } from "../design-system/ListItem";
-import { AddRollStackParamList } from "./AddRollModalScreen";
+import { AddRollStackParamList } from "./AddRollStack";
 import { RootStackParamList } from "../App";
 
 type AddRollChooseCameraScreenRouteProp = RouteProp<
@@ -23,7 +23,7 @@ type AddRollChooseCameraScreenRouteProp = RouteProp<
   "AddRollChooseCamera"
 >;
 type AddRollChooseCameraNavigationProp = CompositeNavigationProp<
-  StackNavigationProp<RootStackParamList, "Rolls">,
+  StackNavigationProp<RootStackParamList, "RollsStack">,
   StackNavigationProp<AddRollStackParamList, "AddRollChooseCamera">
 >;
 
@@ -103,8 +103,7 @@ export function AddRollChooseCameraScreen({
           <Button
             onPress={() => {
               dispatch(saveTempRoll());
-              navigation.navigate("Rolls");
-              // navigation.popToTop();
+              navigation.navigate("RollsStack");
             }}
           >
             Load it up

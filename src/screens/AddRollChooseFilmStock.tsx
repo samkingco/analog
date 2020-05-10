@@ -14,14 +14,14 @@ import { updateTempRoll } from "../store/rolls";
 import { KeyboardAvoidingView } from "../components/KeyboardAvoidingView";
 import { ScrollViewPadding } from "../components/ScrollViewPadding";
 import { ListItem } from "../design-system/ListItem";
-import { AddRollStackParamList } from "./AddRollModalScreen";
+import { AddRollStackParamList } from "./AddRollStack";
 
 type AddRollChooseFilmStockScreenRouteProp = RouteProp<
   AddRollStackParamList,
   "AddRollChooseFilmStock"
 >;
 type AddRollChooseFilmStockNavigationProp = CompositeNavigationProp<
-  StackNavigationProp<RootStackParamList, "Rolls">,
+  StackNavigationProp<RootStackParamList, "RollsStack">,
   StackNavigationProp<AddRollStackParamList, "AddRollChooseFilmStock">
 >;
 
