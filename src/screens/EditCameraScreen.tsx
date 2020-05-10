@@ -129,16 +129,6 @@ export function EditCameraScreen({ route, navigation }: EditCameraScreenProps) {
         >
           Save
         </Button>
-        <Button
-          variant="danger"
-          onPress={() => {
-            dispatch(deleteCamera(camera.id));
-            navigation.popToTop();
-          }}
-          style={{ marginTop: theme.spacing.s12 }}
-        >
-          Delete camera
-        </Button>
       </Toolbar>
     </ScreenBackground>
   );

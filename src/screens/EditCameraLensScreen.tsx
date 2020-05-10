@@ -12,11 +12,7 @@ import { HorizontalScrollPicker } from "../design-system/HorizontalScrollPicker"
 import { makeApertures } from "../util/camera-settings";
 import { Button } from "../design-system/Button";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  cameraBagSelectors,
-  updateCameraLens,
-  deleteCameraLens,
-} from "../store/camera-bag";
+import { cameraBagSelectors, updateCameraLens } from "../store/camera-bag";
 import { stringToNumber } from "../util/string-to-number";
 import { CameraBagStackParamList } from "./CameraBagStack";
 import { Subhead } from "../design-system/Subhead";
@@ -173,16 +169,6 @@ export function EditCameraLensScreen({
           }}
         >
           Save
-        </Button>
-        <Button
-          variant="danger"
-          onPress={() => {
-            dispatch(deleteCameraLens(cameraLens.id));
-            navigation.goBack();
-          }}
-          style={{ marginTop: theme.spacing.s12 }}
-        >
-          Delete lens
         </Button>
       </Toolbar>
     </ScreenBackground>

@@ -51,7 +51,7 @@ export const theme = {
         color: "#FFFFFF",
       },
       danger: {
-        backgroundColor: "#1A1C1E",
+        backgroundColor: "transparent",
         color: "#FF4747",
       },
       disabled: {
