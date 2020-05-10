@@ -176,22 +176,20 @@ export function AddCameraLensScreen({
           ) : null}
           <ScrollViewPadding />
         </ScrollView>
-        <Toolbar>
-          <Button
-            isDisabled={!canSubmit}
-            onPress={() => {
-              dispatch(
-                saveTempCameraLens(
-                  cameraIds.length > 0 ? cameraIds : undefined,
-                ),
-              );
-              navigation.pop();
-            }}
-          >
-            Add lens
-          </Button>
-        </Toolbar>
       </KeyboardAvoidingView>
+      <Toolbar>
+        <Button
+          isDisabled={!canSubmit}
+          onPress={() => {
+            dispatch(
+              saveTempCameraLens(cameraIds.length > 0 ? cameraIds : undefined),
+            );
+            navigation.pop();
+          }}
+        >
+          Add lens
+        </Button>
+      </Toolbar>
     </ScreenBackground>
   );
 }

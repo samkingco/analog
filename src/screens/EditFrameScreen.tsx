@@ -179,36 +179,36 @@ export function EditFrameScreen({ route, navigation }: EditFrameScreenProps) {
           </ContentBlock>
           <ScrollViewPadding />
         </ScrollView>
-        <Toolbar>
-          <Button
-            onPress={() => {
-              dispatch(
-                updateFrame(rollId, {
-                  ...frame,
-                  lensId: localLensId,
-                  shutterSpeed: localShutterSpeed,
-                  aperture: localAperture,
-                  focalLength: localFocalLength,
-                  notes: localNotes,
-                }),
-              );
-              navigation.pop();
-            }}
-          >
-            Save
-          </Button>
-          <Button
-            variant="danger"
-            onPress={() => {
-              dispatch(deleteFrame(rollId, frame.id));
-              navigation.pop();
-            }}
-            style={{ marginTop: theme.spacing.s12 }}
-          >
-            Delete frame
-          </Button>
-        </Toolbar>
       </KeyboardAvoidingView>
+      <Toolbar>
+        <Button
+          onPress={() => {
+            dispatch(
+              updateFrame(rollId, {
+                ...frame,
+                lensId: localLensId,
+                shutterSpeed: localShutterSpeed,
+                aperture: localAperture,
+                focalLength: localFocalLength,
+                notes: localNotes,
+              }),
+            );
+            navigation.pop();
+          }}
+        >
+          Save
+        </Button>
+        <Button
+          variant="danger"
+          onPress={() => {
+            dispatch(deleteFrame(rollId, frame.id));
+            navigation.pop();
+          }}
+          style={{ marginTop: theme.spacing.s12 }}
+        >
+          Delete frame
+        </Button>
+      </Toolbar>
     </ScreenBackground>
   );
 }

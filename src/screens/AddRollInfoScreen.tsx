@@ -131,17 +131,17 @@ export function AddRollInfoScreen({ navigation }: AddRollInfoScreenProps) {
           </ContentBlock>
           <ScrollViewPadding />
         </ScrollView>
-        <Toolbar>
-          <Button
-            onPress={() => {
-              dispatch(saveTempRoll());
-              navigation.navigate("RollsStack");
-            }}
-          >
-            Load it up
-          </Button>
-        </Toolbar>
       </KeyboardAvoidingView>
+      <Toolbar>
+        <Button
+          onPress={() => {
+            dispatch(saveTempRoll());
+            navigation.navigate("RollsStack");
+          }}
+        >
+          Load it up
+        </Button>
+      </Toolbar>
     </ScreenBackground>
   );
 }

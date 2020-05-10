@@ -175,17 +175,17 @@ export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
           </ContentBlock>
           <ScrollViewPadding />
         </ScrollView>
-        <Toolbar>
-          <Button
-            onPress={() => {
-              dispatch(saveTempFrame(rollId));
-              navigation.pop();
-            }}
-          >
-            Save
-          </Button>
-        </Toolbar>
       </KeyboardAvoidingView>
+      <Toolbar>
+        <Button
+          onPress={() => {
+            dispatch(saveTempFrame(rollId));
+            navigation.pop();
+          }}
+        >
+          Save
+        </Button>
+      </Toolbar>
     </ScreenBackground>
   );
 }

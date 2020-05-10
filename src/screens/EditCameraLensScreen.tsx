@@ -154,37 +154,37 @@ export function EditCameraLensScreen({
           </ContentBlock>
           <ScrollViewPadding />
         </ScrollView>
-        <Toolbar>
-          <Button
-            isDisabled={!canSubmit}
-            onPress={() => {
-              dispatch(
-                updateCameraLens({
-                  ...cameraLens,
-                  name: localName,
-                  minFocalLength: localMinFocalLength,
-                  maxFocalLength: localMaxFocalLength,
-                  minAperture: localMinAperture,
-                  maxAperture: localMaxAperture,
-                }),
-              );
-              navigation.goBack();
-            }}
-          >
-            Save
-          </Button>
-          <Button
-            variant="danger"
-            onPress={() => {
-              dispatch(deleteCameraLens(cameraLens.id));
-              navigation.goBack();
-            }}
-            style={{ marginTop: theme.spacing.s12 }}
-          >
-            Delete lens
-          </Button>
-        </Toolbar>
       </KeyboardAvoidingView>
+      <Toolbar>
+        <Button
+          isDisabled={!canSubmit}
+          onPress={() => {
+            dispatch(
+              updateCameraLens({
+                ...cameraLens,
+                name: localName,
+                minFocalLength: localMinFocalLength,
+                maxFocalLength: localMaxFocalLength,
+                minAperture: localMinAperture,
+                maxAperture: localMaxAperture,
+              }),
+            );
+            navigation.goBack();
+          }}
+        >
+          Save
+        </Button>
+        <Button
+          variant="danger"
+          onPress={() => {
+            dispatch(deleteCameraLens(cameraLens.id));
+            navigation.goBack();
+          }}
+          style={{ marginTop: theme.spacing.s12 }}
+        >
+          Delete lens
+        </Button>
+      </Toolbar>
     </ScreenBackground>
   );
 }

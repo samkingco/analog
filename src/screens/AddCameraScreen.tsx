@@ -105,18 +105,18 @@ export function AddCameraScreen({ navigation }: AddCameraScreenProps) {
           </ContentBlock>
           <ScrollViewPadding />
         </ScrollView>
-        <Toolbar>
-          <Button
-            isDisabled={!canSubmit}
-            onPress={() => {
-              dispatch(saveTempCamera());
-              navigation.pop();
-            }}
-          >
-            Add camera
-          </Button>
-        </Toolbar>
       </KeyboardAvoidingView>
+      <Toolbar>
+        <Button
+          isDisabled={!canSubmit}
+          onPress={() => {
+            dispatch(saveTempCamera());
+            navigation.pop();
+          }}
+        >
+          Add camera
+        </Button>
+      </Toolbar>
     </ScreenBackground>
   );
 }

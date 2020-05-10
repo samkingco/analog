@@ -16,6 +16,7 @@ import { AddFrameScreen } from "./screens/AddFrameScreen";
 import { CameraBagStack } from "./screens/CameraBagStack";
 import { AddCameraLensScreen } from "./screens/AddCameraLensScreen";
 import { AddCameraScreen } from "./screens/AddCameraScreen";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export type RootStackParamList = {
   RollsStack: undefined;
@@ -32,94 +33,98 @@ export const App = () => {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <NavigationContainer>
-          <StatusBar barStyle="light-content" />
-          <View
-            style={{
-              backgroundColor: theme.colors.background.default,
-              flex: 1,
-            }}
-          >
-            <Stack.Navigator
-              initialRouteName="RollsStack"
-              headerMode="screen"
-              screenOptions={{
-                cardOverlayEnabled: true,
-                cardStyle: { backgroundColor: theme.colors.background.default },
-                header: (props) => <NavigationHeader {...props} />,
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <StatusBar barStyle="light-content" />
+            <View
+              style={{
+                backgroundColor: theme.colors.background.default,
+                flex: 1,
               }}
             >
-              <Stack.Screen
-                name="RollsStack"
-                component={RollsStack}
-                options={{
-                  header: () => null,
+              <Stack.Navigator
+                initialRouteName="RollsStack"
+                headerMode="screen"
+                screenOptions={{
+                  cardOverlayEnabled: true,
+                  cardStyle: {
+                    backgroundColor: theme.colors.background.default,
+                  },
+                  header: (props) => <NavigationHeader {...props} />,
                 }}
-              />
-              <Stack.Screen
-                name="AddRollStack"
-                component={AddRollStack}
-                options={{
-                  header: () => null,
-                  ...TransitionPresets.ModalPresentationIOS,
-                }}
-              />
-              <Stack.Screen
-                name="AddFrame"
-                component={AddFrameScreen}
-                options={{
-                  title: "New photo",
-                  header: (props) => (
-                    <NavigationHeader
-                      isModal={true}
-                      isSingleScreenModal={true}
-                      {...props}
-                    />
-                  ),
-                  ...TransitionPresets.ModalPresentationIOS,
-                }}
-              />
-              <Stack.Screen
-                name="CameraBagStack"
-                component={CameraBagStack}
-                options={{
-                  header: () => null,
-                  ...TransitionPresets.ModalPresentationIOS,
-                }}
-              />
-              <Stack.Screen
-                name="AddCamera"
-                component={AddCameraScreen}
-                options={{
-                  title: "Add camera",
-                  header: (props) => (
-                    <NavigationHeader
-                      isModal={true}
-                      isSingleScreenModal={true}
-                      {...props}
-                    />
-                  ),
-                  ...TransitionPresets.ModalPresentationIOS,
-                }}
-              />
-              <Stack.Screen
-                name="AddCameraLens"
-                component={AddCameraLensScreen}
-                options={{
-                  title: "Add lens",
-                  header: (props) => (
-                    <NavigationHeader
-                      isModal={true}
-                      isSingleScreenModal={true}
-                      {...props}
-                    />
-                  ),
-                  ...TransitionPresets.ModalPresentationIOS,
-                }}
-              />
-            </Stack.Navigator>
-          </View>
-        </NavigationContainer>
+              >
+                <Stack.Screen
+                  name="RollsStack"
+                  component={RollsStack}
+                  options={{
+                    header: () => null,
+                  }}
+                />
+                <Stack.Screen
+                  name="AddRollStack"
+                  component={AddRollStack}
+                  options={{
+                    header: () => null,
+                    ...TransitionPresets.ModalPresentationIOS,
+                  }}
+                />
+                <Stack.Screen
+                  name="AddFrame"
+                  component={AddFrameScreen}
+                  options={{
+                    title: "New photo",
+                    header: (props) => (
+                      <NavigationHeader
+                        isModal={true}
+                        isSingleScreenModal={true}
+                        {...props}
+                      />
+                    ),
+                    ...TransitionPresets.ModalPresentationIOS,
+                  }}
+                />
+                <Stack.Screen
+                  name="CameraBagStack"
+                  component={CameraBagStack}
+                  options={{
+                    header: () => null,
+                    ...TransitionPresets.ModalPresentationIOS,
+                  }}
+                />
+                <Stack.Screen
+                  name="AddCamera"
+                  component={AddCameraScreen}
+                  options={{
+                    title: "Add camera",
+                    header: (props) => (
+                      <NavigationHeader
+                        isModal={true}
+                        isSingleScreenModal={true}
+                        {...props}
+                      />
+                    ),
+                    ...TransitionPresets.ModalPresentationIOS,
+                  }}
+                />
+                <Stack.Screen
+                  name="AddCameraLens"
+                  component={AddCameraLensScreen}
+                  options={{
+                    title: "Add lens",
+                    header: (props) => (
+                      <NavigationHeader
+                        isModal={true}
+                        isSingleScreenModal={true}
+                        {...props}
+                      />
+                    ),
+                    ...TransitionPresets.ModalPresentationIOS,
+                  }}
+                />
+              </Stack.Navigator>
+            </View>
+          </NavigationContainer>
+        </SafeAreaProvider>
       </PersistGate>
     </Provider>
   );

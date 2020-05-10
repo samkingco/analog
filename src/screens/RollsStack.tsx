@@ -7,7 +7,7 @@ import { RollsScreen } from "./RollsScreen";
 import { RollDetailScreen } from "./RollDetailScreen";
 import { EditFrameScreen } from "./EditFrameScreen";
 import { Icon } from "../design-system/Icon";
-import { CameraBagIcon } from "../design-system/icons/CameraBagIcon";
+import { MenuIcon } from "../design-system/icons/MenuIcon";
 
 export type RollsScreenStackParamList = {
   Rolls: undefined;
@@ -37,7 +37,7 @@ export function RollsStack() {
                   <TouchableOpacity
                     onPress={() => props.navigation.navigate("CameraBagStack")}
                   >
-                    <Icon type={CameraBagIcon} />
+                    <Icon type={MenuIcon} />
                   </TouchableOpacity>
                 }
                 {...props}

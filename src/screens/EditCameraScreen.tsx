@@ -111,35 +111,35 @@ export function EditCameraScreen({ route, navigation }: EditCameraScreenProps) {
           </ContentBlock>
           <ScrollViewPadding />
         </ScrollView>
-        <Toolbar>
-          <Button
-            isDisabled={!canSubmit}
-            onPress={() => {
-              dispatch(
-                updateCamera({
-                  ...camera,
-                  name: localName,
-                  numberOfFrames: localNumberOfFrames,
-                  lensIds: localLensIds,
-                }),
-              );
-              navigation.pop();
-            }}
-          >
-            Save
-          </Button>
-          <Button
-            variant="danger"
-            onPress={() => {
-              dispatch(deleteCamera(camera.id));
-              navigation.popToTop();
-            }}
-            style={{ marginTop: theme.spacing.s12 }}
-          >
-            Delete camera
-          </Button>
-        </Toolbar>
       </KeyboardAvoidingView>
+      <Toolbar>
+        <Button
+          isDisabled={!canSubmit}
+          onPress={() => {
+            dispatch(
+              updateCamera({
+                ...camera,
+                name: localName,
+                numberOfFrames: localNumberOfFrames,
+                lensIds: localLensIds,
+              }),
+            );
+            navigation.pop();
+          }}
+        >
+          Save
+        </Button>
+        <Button
+          variant="danger"
+          onPress={() => {
+            dispatch(deleteCamera(camera.id));
+            navigation.popToTop();
+          }}
+          style={{ marginTop: theme.spacing.s12 }}
+        >
+          Delete camera
+        </Button>
+      </Toolbar>
     </ScreenBackground>
   );
 }
