@@ -26,24 +26,21 @@ import { CheckIcon } from "../design-system/icons/CheckIcon";
 import { BlankIcon } from "../design-system/icons/BlankIcon";
 import { Subhead } from "../design-system/Subhead";
 
-type CameraDetailScreenRouteProp = RouteProp<
+type EditCameraScreenRouteProp = RouteProp<
   CameraBagStackParamList,
-  "CameraDetail"
+  "EditCamera"
 >;
-type CameraDetailScreenNavigationProp = StackNavigationProp<
+type EditCameraScreenNavigationProp = StackNavigationProp<
   CameraBagStackParamList,
-  "CameraDetail"
+  "EditCamera"
 >;
 
-type CameraDetailScreenProps = {
-  route: CameraDetailScreenRouteProp;
-  navigation: CameraDetailScreenNavigationProp;
+type EditCameraScreenProps = {
+  route: EditCameraScreenRouteProp;
+  navigation: EditCameraScreenNavigationProp;
 };
 
-export function CameraDetailScreen({
-  route,
-  navigation,
-}: CameraDetailScreenProps) {
+export function EditCameraScreen({ route, navigation }: EditCameraScreenProps) {
   const dispatch = useDispatch();
   const { cameraId } = route.params;
   const camera = useSelector((s) => cameraBagSelectors.cameraById(s, cameraId));

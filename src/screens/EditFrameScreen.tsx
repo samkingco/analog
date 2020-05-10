@@ -27,24 +27,21 @@ import {
 import { Subhead } from "../design-system/Subhead";
 import { RollsScreenStackParamList } from "./RollsStack";
 
-export type FrameDetailScreenRouteProp = RouteProp<
+export type EditFrameScreenRouteProp = RouteProp<
   RollsScreenStackParamList,
-  "FrameDetail"
+  "EditFrame"
 >;
-export type FrameDetailNavigationProp = CompositeNavigationProp<
+export type EditFrameNavigationProp = CompositeNavigationProp<
   StackNavigationProp<RootStackParamList, "RollsStack">,
-  StackNavigationProp<RollsScreenStackParamList, "FrameDetail">
+  StackNavigationProp<RollsScreenStackParamList, "EditFrame">
 >;
 
-type FrameDetailScreenProps = {
-  route: FrameDetailScreenRouteProp;
-  navigation: FrameDetailNavigationProp;
+type EditFrameScreenProps = {
+  route: EditFrameScreenRouteProp;
+  navigation: EditFrameNavigationProp;
 };
 
-export function FrameDetailScreen({
-  route,
-  navigation,
-}: FrameDetailScreenProps) {
+export function EditFrameScreen({ route, navigation }: EditFrameScreenProps) {
   const dispatch = useDispatch();
   const { rollId, frameId } = route.params;
   const roll = useSelector((s) => rollSelectors.rollById(s, rollId));

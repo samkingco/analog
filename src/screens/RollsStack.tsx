@@ -5,14 +5,14 @@ import { theme } from "../theme";
 import { View, TouchableOpacity } from "react-native";
 import { RollsScreen } from "./RollsScreen";
 import { RollDetailScreen } from "./RollDetailScreen";
-import { FrameDetailScreen } from "./FrameDetailScreen";
+import { EditFrameScreen } from "./EditFrameScreen";
 import { Icon } from "../design-system/Icon";
 import { CameraBagIcon } from "../design-system/icons/CameraBagIcon";
 
 export type RollsScreenStackParamList = {
   Rolls: undefined;
   RollDetail: { rollId: string };
-  FrameDetail: { frameId: string; rollId: string };
+  EditFrame: { frameId: string; rollId: string };
 };
 
 const Stack = createStackNavigator<RollsScreenStackParamList>();
@@ -46,7 +46,7 @@ export function RollsStack() {
           }}
         />
         <Stack.Screen name="RollDetail" component={RollDetailScreen} />
-        <Stack.Screen name="FrameDetail" component={FrameDetailScreen} />
+        <Stack.Screen name="EditFrame" component={EditFrameScreen} />
       </Stack.Navigator>
     </View>
   );

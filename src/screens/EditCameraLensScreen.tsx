@@ -21,26 +21,26 @@ import { stringToNumber } from "../util/string-to-number";
 import { CameraBagStackParamList } from "./CameraBagStack";
 import { Subhead } from "../design-system/Subhead";
 
-type AddLensScreenRouteProp = RouteProp<
+type EditCameraLensScreenRouteProp = RouteProp<
   CameraBagStackParamList,
-  "CameraLensDetail"
+  "EditCameraLens"
 >;
-type AddLensScreenNavigationProp = StackNavigationProp<
+type EditCameraLensScreenNavigationProp = StackNavigationProp<
   CameraBagStackParamList,
-  "CameraLensDetail"
+  "EditCameraLens"
 >;
 
-type AddLensScreenProps = {
-  route: AddLensScreenRouteProp;
-  navigation: AddLensScreenNavigationProp;
+type EditCameraLensScreenProps = {
+  route: EditCameraLensScreenRouteProp;
+  navigation: EditCameraLensScreenNavigationProp;
 };
 
 const apertures = makeApertures();
 
-export function CameraLensDetailScreen({
+export function EditCameraLensScreen({
   route,
   navigation,
-}: AddLensScreenProps) {
+}: EditCameraLensScreenProps) {
   const { cameraLensId } = route.params;
   const dispatch = useDispatch();
   const cameraLens = useSelector((s) =>

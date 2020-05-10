@@ -43,7 +43,7 @@ export function CameraBagScreen({ navigation }: CameraBagListScreenProps) {
             <ListItem
               title={item.name}
               onPress={() =>
-                navigation.navigate("CameraDetail", { cameraId: item.id })
+                navigation.navigate("EditCamera", { cameraId: item.id })
               }
             />
           )}
@@ -65,7 +65,7 @@ export function CameraBagScreen({ navigation }: CameraBagListScreenProps) {
             <ListItem
               title={item.name}
               onPress={() =>
-                navigation.navigate("CameraLensDetail", {
+                navigation.navigate("EditCameraLens", {
                   cameraLensId: item.id,
                 })
               }

@@ -200,7 +200,7 @@ export function RollDetailScreen({ route, navigation }: Props) {
                         item.notes ? `\n${item.notes}` : ""
                       }`}
                       onPress={() =>
-                        navigation.navigate("FrameDetail", {
+                        navigation.navigate("EditFrame", {
                           rollId,
                           frameId: item.id,
                         })

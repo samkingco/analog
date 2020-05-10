@@ -12,7 +12,6 @@ import { Button } from "../design-system/Button";
 import { ScrollViewPadding } from "../components/ScrollViewPadding";
 import { ScreenBackground } from "../components/ScreenBackground";
 import { ListItem } from "../design-system/ListItem";
-import { Subhead } from "../design-system/Subhead";
 import { format } from "date-fns";
 import { RollsScreenStackParamList } from "./RollsStack";
 import { RootStackParamList } from "../App";
