@@ -54,6 +54,10 @@ export const theme = {
         backgroundColor: "#FF4747",
         color: "#FFFFFF",
       },
+      disabled: {
+        backgroundColor: "#1E2124",
+        color: "#464D53",
+      },
     },
   },
   misc: {
