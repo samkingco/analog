@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -19,6 +19,11 @@ import {
   saveTempCameraLens,
 } from "../store/camera-bag";
 import { stringToNumber } from "../util/string-to-number";
+import { SectionTitle } from "../design-system/SectionTitle";
+import { List } from "../design-system/List";
+import { ListItem } from "../design-system/ListItem";
+import { CheckIcon } from "../design-system/icons/CheckIcon";
+import { BlankIcon } from "../design-system/icons/BlankIcon";
 
 type AddCameraLensScreenRouteProp = RouteProp<
   RootStackParamList,
@@ -41,8 +46,11 @@ export function AddCameraLensScreen({
   const { cameraId } = route.params;
   const dispatch = useDispatch();
   const tempCameraLens = useSelector(cameraBagSelectors.tempCameraLens);
+  const cameras = useSelector(cameraBagSelectors.camerasList);
   // TODO: Don't allow you to set a max lower than a min
   const apertures = useMemo(() => makeApertures(), []);
+
+  const [cameraIds, setCameraIds] = useState(cameraId ? [cameraId] : []);
 
   useEffect(() => {
     dispatch(
@@ -139,12 +147,42 @@ export function AddCameraLensScreen({
               style={{ marginTop: theme.spacing.s12 }}
             />
           </ContentBlock>
+          {cameras.length > 0 ? (
+            <ContentBlock>
+              <SectionTitle>Cameras</SectionTitle>
+              <List
+                items={cameras}
+                keyExtractor={(i) => i.id}
+                renderItem={(item) => {
+                  const isSelected = cameraIds.includes(item.id);
+                  return (
+                    <ListItem
+                      title={item.name}
+                      rightIconType={isSelected ? CheckIcon : BlankIcon}
+                      onPress={() => {
+                        setCameraIds((state) =>
+                          isSelected
+                            ? cameraIds.filter((id) => id !== item.id)
+                            : [...state, item.id],
+                        );
+                      }}
+                    />
+                  );
+                }}
+                style={{ marginBottom: theme.spacing.s12 }}
+              />
+            </ContentBlock>
+          ) : null}
           <ContentBlock>
             <Button
               isDisabled={!canSubmit}
               onPress={() => {
-                dispatch(saveTempCameraLens(cameraId));
-                navigation.navigate("CameraBagStack");
+                dispatch(
+                  saveTempCameraLens(
+                    cameraIds.length > 0 ? cameraIds : undefined,
+                  ),
+                );
+                navigation.pop();
               }}
             >
               Add lens

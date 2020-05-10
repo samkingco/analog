@@ -51,60 +51,60 @@ const initialState: CameraBagState = {
   tempCamera: blankCamera,
   tempCameraLens: blankCameraLens,
   cameras: {
-    cam_1: {
-      id: "cam_1",
-      name: "Hasselblad 500C/M",
-      numberOfFrames: 12,
-      lensIds: ["lens_1", "lens_5"],
-    },
-    cam_2: {
-      id: "cam_2",
-      name: "Mamiya 7",
-      numberOfFrames: 10,
-      lensIds: ["lens_2", "lens_3", "lens_4"],
-    },
+    // cam_1: {
+    //   id: "cam_1",
+    //   name: "Hasselblad 500C/M",
+    //   numberOfFrames: 12,
+    //   lensIds: ["lens_1", "lens_5"],
+    // },
+    // cam_2: {
+    //   id: "cam_2",
+    //   name: "Mamiya 7",
+    //   numberOfFrames: 10,
+    //   lensIds: ["lens_2", "lens_3", "lens_4"],
+    // },
   },
   cameraLenses: {
-    lens_1: {
-      id: "lens_1",
-      name: "Hasselblad 80mm f/2.8 CF",
-      minFocalLength: 80,
-      maxFocalLength: 80,
-      minAperture: 2.8,
-      maxAperture: 22,
-    },
-    lens_2: {
-      id: "lens_2",
-      name: "Mamiya 43mm f/4.5",
-      minFocalLength: 43,
-      maxFocalLength: 43,
-      minAperture: 4.5,
-      maxAperture: 22,
-    },
-    lens_3: {
-      id: "lens_3",
-      name: "Mamiya 80-150mm f/4",
-      minFocalLength: 80,
-      maxFocalLength: 150,
-      minAperture: 4,
-      maxAperture: 22,
-    },
-    lens_4: {
-      id: "lens_4",
-      name: "Mamiya 100-200mm f/4.5",
-      minFocalLength: 100,
-      maxFocalLength: 200,
-      minAperture: 4.5,
-      maxAperture: 22,
-    },
-    lens_5: {
-      id: "lens_5",
-      name: "Zoom boi",
-      minFocalLength: 24,
-      maxFocalLength: 70,
-      minAperture: 4.5,
-      maxAperture: 22,
-    },
+    // lens_1: {
+    //   id: "lens_1",
+    //   name: "Hasselblad 80mm f/2.8 CF",
+    //   minFocalLength: 80,
+    //   maxFocalLength: 80,
+    //   minAperture: 2.8,
+    //   maxAperture: 22,
+    // },
+    // lens_2: {
+    //   id: "lens_2",
+    //   name: "Mamiya 43mm f/4.5",
+    //   minFocalLength: 43,
+    //   maxFocalLength: 43,
+    //   minAperture: 4.5,
+    //   maxAperture: 22,
+    // },
+    // lens_3: {
+    //   id: "lens_3",
+    //   name: "Mamiya 80-150mm f/4",
+    //   minFocalLength: 80,
+    //   maxFocalLength: 150,
+    //   minAperture: 4,
+    //   maxAperture: 22,
+    // },
+    // lens_4: {
+    //   id: "lens_4",
+    //   name: "Mamiya 100-200mm f/4.5",
+    //   minFocalLength: 100,
+    //   maxFocalLength: 200,
+    //   minAperture: 4.5,
+    //   maxAperture: 22,
+    // },
+    // lens_5: {
+    //   id: "lens_5",
+    //   name: "Zoom boi",
+    //   minFocalLength: 24,
+    //   maxFocalLength: 70,
+    //   minAperture: 4.5,
+    //   maxAperture: 22,
+    // },
   },
 };
 
@@ -162,9 +162,9 @@ export const { actions, reducer } = createSlice({
     },
     saveTempCameraLens: (
       state,
-      action: PayloadAction<{ cameraId?: string }>,
+      action: PayloadAction<{ cameraIds?: string[] }>,
     ) => {
-      const cameraId = action.payload.cameraId;
+      const { cameraIds } = action.payload;
       const lensId = uuid("lens");
       state.cameraLenses[lensId] = {
         ...state.tempCameraLens,
@@ -175,11 +175,13 @@ export const { actions, reducer } = createSlice({
             : state.tempCameraLens.minFocalLength,
       };
 
-      if (cameraId) {
-        state.cameras[cameraId].lensIds = [
-          ...state.cameras[cameraId].lensIds,
-          lensId,
-        ];
+      if (cameraIds) {
+        for (const cameraId of cameraIds) {
+          state.cameras[cameraId].lensIds = [
+            ...state.cameras[cameraId].lensIds,
+            lensId,
+          ];
+        }
       }
 
       state.tempCameraLens = blankCameraLens;
@@ -253,9 +255,9 @@ export function updateTempCameraLens(lens: Partial<CameraLens>) {
   };
 }
 
-export function saveTempCameraLens(cameraId?: string) {
+export function saveTempCameraLens(cameraIds?: string[]) {
   return function (dispatch: Dispatch) {
-    dispatch(actions.saveTempCameraLens({ cameraId }));
+    dispatch(actions.saveTempCameraLens({ cameraIds }));
   };
 }
 

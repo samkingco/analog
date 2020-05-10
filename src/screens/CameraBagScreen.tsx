@@ -34,7 +34,9 @@ export function CameraBagScreen({ navigation }: CameraBagListScreenProps) {
   return (
     <ScreenBackground>
       <ContentBlock>
-        <SectionTitle>Cameras</SectionTitle>
+        <SectionTitle>
+          {cameras.length > 0 ? "Cameras" : "No cameras"}
+        </SectionTitle>
         <List
           style={{ marginBottom: theme.spacing.s12 }}
           items={cameras}
@@ -56,7 +58,9 @@ export function CameraBagScreen({ navigation }: CameraBagListScreenProps) {
         </Button>
       </ContentBlock>
       <ContentBlock>
-        <SectionTitle>Lenses</SectionTitle>
+        <SectionTitle>
+          {lenses.length > 0 ? "Lenses" : "No lenses"}
+        </SectionTitle>
         <List
           style={{ marginBottom: theme.spacing.s12 }}
           items={lenses}

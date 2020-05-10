@@ -37,7 +37,7 @@ type AddCameraScreenProps = {
 export function AddCameraScreen({ navigation }: AddCameraScreenProps) {
   const dispatch = useDispatch();
   const tempCamera = useSelector(cameraBagSelectors.tempCamera);
-  const cameraLenses = useSelector(cameraBagSelectors.lensesList);
+  const lenses = useSelector(cameraBagSelectors.lensesList);
   const canSubmit = Boolean(tempCamera.name && tempCamera.numberOfFrames);
 
   return (
@@ -62,13 +62,16 @@ export function AddCameraScreen({ navigation }: AddCameraScreenProps) {
                 )
               }
               placeholder={"0"}
+              inputProps={{ keyboardType: "number-pad" }}
               style={{ marginTop: theme.spacing.s12 }}
             />
           </ContentBlock>
           <ContentBlock>
-            <SectionTitle>Lenses</SectionTitle>
+            <SectionTitle>
+              {lenses.length > 0 ? "Lenses" : "No lenses"}
+            </SectionTitle>
             <List
-              items={cameraLenses}
+              items={lenses}
               keyExtractor={(i) => i.id}
               renderItem={(item) => {
                 const isSelected = tempCamera.lensIds.includes(item.id);
@@ -88,14 +91,23 @@ export function AddCameraScreen({ navigation }: AddCameraScreenProps) {
                   />
                 );
               }}
+              style={{ marginBottom: theme.spacing.s12 }}
             />
+            <Button
+              variant="secondary"
+              onPress={() => {
+                navigation.navigate("AddCameraLens", { cameraId: undefined });
+              }}
+            >
+              Add lens
+            </Button>
           </ContentBlock>
           <ContentBlock>
             <Button
               isDisabled={!canSubmit}
               onPress={() => {
                 dispatch(saveTempCamera());
-                navigation.navigate("CameraBagStack");
+                navigation.pop();
               }}
             >
               Add camera

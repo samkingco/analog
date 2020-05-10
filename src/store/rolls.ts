@@ -73,59 +73,59 @@ const initialState: FilmLogState = {
   tempRoll: blankRoll,
   tempFrame: blankFrame,
   rolls: {
-    roll_1: {
-      id: "roll_1",
-      filmStockId: "kodak-portra-400",
-      cameraId: "cam_1",
-      frames: [
-        {
-          id: "frame_1",
-          lensId: "lens_1",
-          captureTime: Date.now(),
-          focalLength: 80,
-          aperture: 2.8,
-          shutterSpeed: 1 / 250,
-          notes: "A really cool reflection",
-        },
-        {
-          id: "frame_2",
-          lensId: "lens_1",
-          captureTime: Date.now(),
-          focalLength: 80,
-          aperture: 4,
-          shutterSpeed: 1 / 250,
-        },
-      ],
-      maxFrameCount: 12,
-      dateLoaded: Date.now(),
-    },
-    roll_2: {
-      id: "roll_2",
-      filmStockId: "kodak-t-max-400",
-      cameraId: "cam_2",
-      frames: [],
-      maxFrameCount: 12,
-      dateLoaded: Date.now(),
-    },
-    roll_3: {
-      id: "roll_3",
-      filmStockId: "kodak-portra-400",
-      cameraId: "cam_1",
-      frames: [],
-      maxFrameCount: 12,
-      dateLoaded: Date.now(),
-      dateCompleted: Date.now(),
-    },
-    roll_4: {
-      id: "roll_4",
-      filmStockId: "kodak-portra-400",
-      cameraId: "cam_1",
-      frames: [],
-      maxFrameCount: 12,
-      dateLoaded: Date.now(),
-      dateCompleted: Date.now(),
-      dateProcessed: Date.now(),
-    },
+    // roll_1: {
+    //   id: "roll_1",
+    //   filmStockId: "kodak-portra-400",
+    //   cameraId: "cam_1",
+    //   frames: [
+    //     {
+    //       id: "frame_1",
+    //       lensId: "lens_1",
+    //       captureTime: Date.now(),
+    //       focalLength: 80,
+    //       aperture: 2.8,
+    //       shutterSpeed: 1 / 250,
+    //       notes: "A really cool reflection",
+    //     },
+    //     {
+    //       id: "frame_2",
+    //       lensId: "lens_1",
+    //       captureTime: Date.now(),
+    //       focalLength: 80,
+    //       aperture: 4,
+    //       shutterSpeed: 1 / 250,
+    //     },
+    //   ],
+    //   maxFrameCount: 12,
+    //   dateLoaded: Date.now(),
+    // },
+    // roll_2: {
+    //   id: "roll_2",
+    //   filmStockId: "kodak-t-max-400",
+    //   cameraId: "cam_2",
+    //   frames: [],
+    //   maxFrameCount: 12,
+    //   dateLoaded: Date.now(),
+    // },
+    // roll_3: {
+    //   id: "roll_3",
+    //   filmStockId: "kodak-portra-400",
+    //   cameraId: "cam_1",
+    //   frames: [],
+    //   maxFrameCount: 12,
+    //   dateLoaded: Date.now(),
+    //   dateCompleted: Date.now(),
+    // },
+    // roll_4: {
+    //   id: "roll_4",
+    //   filmStockId: "kodak-portra-400",
+    //   cameraId: "cam_1",
+    //   frames: [],
+    //   maxFrameCount: 12,
+    //   dateLoaded: Date.now(),
+    //   dateCompleted: Date.now(),
+    //   dateProcessed: Date.now(),
+    // },
   },
 };
 
@@ -345,7 +345,7 @@ function rollsList(state: AppState): ComputedRoll[] {
   const list = [];
   for (const id of Object.keys(state.rolls.rolls)) {
     const result = rollById(state, id);
-    if (result) {
+    if (result && !result.isArchived) {
       list.push(result);
     }
   }
@@ -362,8 +362,8 @@ function rollsListGrouped(state: AppState): GroupedRollsList {
   const shooting = [];
   const complete = [];
   const processed = [];
-  for (const id of Object.keys(state.rolls.rolls)) {
-    const result = rollById(state, id);
+  const fullRollsList = rollsList(state);
+  for (const result of fullRollsList) {
     if (result && isRollActive(result)) {
       shooting.push(result);
     }
