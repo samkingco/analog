@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useState } from "react";
-import { RouteProp } from "@react-navigation/native";
+import { RouteProp, CompositeNavigationProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../App";
 import { ScreenBackground } from "../components/ScreenBackground";
@@ -25,11 +25,15 @@ import {
   makeFocalLengths,
 } from "../util/camera-settings";
 import { Subhead } from "../design-system/Subhead";
+import { RollsScreenStackParamList } from "./RollsScreen";
 
-type FrameDetailScreenRouteProp = RouteProp<RootStackParamList, "FrameDetail">;
-type FrameDetailNavigationProp = StackNavigationProp<
-  RootStackParamList,
+export type FrameDetailScreenRouteProp = RouteProp<
+  RollsScreenStackParamList,
   "FrameDetail"
+>;
+export type FrameDetailNavigationProp = CompositeNavigationProp<
+  StackNavigationProp<RootStackParamList, "Rolls">,
+  StackNavigationProp<RollsScreenStackParamList, "FrameDetail">
 >;
 
 type FrameDetailScreenProps = {

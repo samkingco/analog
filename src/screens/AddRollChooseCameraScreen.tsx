@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
-import { RouteProp } from "@react-navigation/native";
+import { RouteProp, CompositeNavigationProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../App";
 import { ScreenBackground } from "../components/ScreenBackground";
 import { useSelector, useDispatch } from "react-redux";
 import { ContentBlock } from "../design-system/ContentBlock";
@@ -16,14 +15,16 @@ import { CheckIcon } from "../design-system/icons/CheckIcon";
 import { BlankIcon } from "../design-system/icons/BlankIcon";
 import { SectionTitle } from "../design-system/SectionTitle";
 import { ListItem } from "../design-system/ListItem";
+import { AddRollStackParamList } from "./AddRollModalScreen";
+import { RootStackParamList } from "../App";
 
 type AddRollChooseCameraScreenRouteProp = RouteProp<
-  RootStackParamList,
+  AddRollStackParamList,
   "AddRollChooseCamera"
 >;
-type AddRollChooseCameraNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "AddRollChooseCamera"
+type AddRollChooseCameraNavigationProp = CompositeNavigationProp<
+  StackNavigationProp<RootStackParamList, "Rolls">,
+  StackNavigationProp<AddRollStackParamList, "AddRollChooseCamera">
 >;
 
 type AddRollChooseCameraScreenProps = {
@@ -103,6 +104,7 @@ export function AddRollChooseCameraScreen({
             onPress={() => {
               dispatch(saveTempRoll());
               navigation.navigate("Rolls");
+              // navigation.popToTop();
             }}
           >
             Load it up

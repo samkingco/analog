@@ -25,18 +25,24 @@ import {
   makeFocalLengths,
 } from "../util/camera-settings";
 
-type AddFrameScreenRouteProp = RouteProp<RootStackParamList, "AddFrame">;
+type AddFrameModalScreenRouteProp = RouteProp<
+  RootStackParamList,
+  "AddFrameModal"
+>;
 type AddFrameNavigationProp = StackNavigationProp<
   RootStackParamList,
-  "AddFrame"
+  "AddFrameModal"
 >;
 
-type AddFrameScreenProps = {
-  route: AddFrameScreenRouteProp;
+type AddFrameModalScreenProps = {
+  route: AddFrameModalScreenRouteProp;
   navigation: AddFrameNavigationProp;
 };
 
-export function AddFrameScreen({ route, navigation }: AddFrameScreenProps) {
+export function AddFrameModalScreen({
+  route,
+  navigation,
+}: AddFrameModalScreenProps) {
   const dispatch = useDispatch();
   const { rollId } = route.params;
   const roll = useSelector((s) => rollSelectors.rollById(s, rollId));

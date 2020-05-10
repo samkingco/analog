@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { ScrollView } from "react-native";
-import { RouteProp } from "@react-navigation/native";
+import { RouteProp, CompositeNavigationProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { format } from "date-fns";
 import { RootStackParamList } from "../App";
@@ -36,11 +36,15 @@ import {
   formatAperture,
   formatFocalLength,
 } from "../util/camera-settings";
+import { RollsScreenStackParamList } from "./RollsScreen";
 
-type RollDetailScreenRouteProp = RouteProp<RootStackParamList, "RollDetail">;
-type RollDetailScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
+export type RollDetailScreenRouteProp = RouteProp<
+  RollsScreenStackParamList,
   "RollDetail"
+>;
+export type RollDetailScreenNavigationProp = CompositeNavigationProp<
+  StackNavigationProp<RootStackParamList, "Rolls">,
+  StackNavigationProp<RollsScreenStackParamList, "RollDetail">
 >;
 
 type Props = {
@@ -169,7 +173,7 @@ export function RollDetailScreen({ route, navigation }: Props) {
               style={{ marginBottom: theme.spacing.s12 }}
               onPress={() => {
                 dispatch(resetTempFrame);
-                navigation.navigate("AddFrame", { rollId: roll.id });
+                navigation.navigate("AddFrameModal", { rollId: roll.id });
               }}
             >
               New photo

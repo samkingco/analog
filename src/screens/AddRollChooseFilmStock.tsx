@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { RouteProp } from "@react-navigation/native";
+import { RouteProp, CompositeNavigationProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../App";
 import { ScreenBackground } from "../components/ScreenBackground";
@@ -14,14 +14,15 @@ import { updateTempRoll } from "../store/rolls";
 import { KeyboardAvoidingView } from "../components/KeyboardAvoidingView";
 import { ScrollViewPadding } from "../components/ScrollViewPadding";
 import { ListItem } from "../design-system/ListItem";
+import { AddRollStackParamList } from "./AddRollModalScreen";
 
 type AddRollChooseFilmStockScreenRouteProp = RouteProp<
-  RootStackParamList,
+  AddRollStackParamList,
   "AddRollChooseFilmStock"
 >;
-type AddRollChooseFilmStockNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "AddRollChooseFilmStock"
+type AddRollChooseFilmStockNavigationProp = CompositeNavigationProp<
+  StackNavigationProp<RootStackParamList, "Rolls">,
+  StackNavigationProp<AddRollStackParamList, "AddRollChooseFilmStock">
 >;
 
 type AddRollChooseFilmStockScreenProps = {
