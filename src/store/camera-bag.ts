@@ -7,6 +7,7 @@ export interface Camera {
   name: string;
   numberOfFrames: number;
   lensIds: CameraLens["id"][];
+  isArchived?: boolean;
 }
 
 export interface CameraLens {
@@ -16,6 +17,7 @@ export interface CameraLens {
   maxFocalLength: number;
   minAperture: number;
   maxAperture: number;
+  isArchived?: boolean;
 }
 
 interface CameraBagState {
@@ -144,7 +146,7 @@ export const { actions, reducer } = createSlice({
       }
     },
     deleteCamera: (state, action: PayloadAction<{ cameraId: string }>) => {
-      delete state.cameras[action.payload.cameraId];
+      state.cameras[action.payload.cameraId].isArchived = true;
     },
     resetTempCameraLens: (state) => {
       state.tempCameraLens = blankCameraLens;
@@ -198,7 +200,7 @@ export const { actions, reducer } = createSlice({
       }
     },
     deleteCameraLens: (state, action: PayloadAction<{ lensId: string }>) => {
-      delete state.cameraLenses[action.payload.lensId];
+      state.cameraLenses[action.payload.lensId].isArchived = true;
     },
   },
 });
@@ -277,7 +279,7 @@ function camerasList(state: AppState): Camera[] {
   const list = [];
   for (const id of Object.keys(state.cameraBag.cameras)) {
     const result = cameraById(state, id);
-    if (result) {
+    if (result && !result.isArchived) {
       list.push(result);
     }
   }
@@ -292,7 +294,7 @@ function lensesList(state: AppState): CameraLens[] {
   const list = [];
   for (const id of Object.keys(state.cameraBag.cameraLenses)) {
     const result = lensById(state, id);
-    if (result) {
+    if (result && !result.isArchived) {
       list.push(result);
     }
   }

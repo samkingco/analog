@@ -15,6 +15,7 @@ export interface Roll {
   dateCompleted?: number;
   dateProcessed?: number;
   notes?: string;
+  isArchived?: boolean;
 }
 
 export interface ComputedRoll extends Roll {
@@ -168,7 +169,7 @@ export const { actions, reducer } = createSlice({
       }
     },
     deleteRoll: (state, action: PayloadAction<{ rollId: string }>) => {
-      delete state.rolls[action.payload.rollId];
+      state.rolls[action.payload.rollId].isArchived = true;
     },
     resetTempFrame: (state) => {
       state.tempFrame = blankFrame;
