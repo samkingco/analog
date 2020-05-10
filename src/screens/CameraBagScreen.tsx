@@ -40,10 +40,20 @@ export function CameraBagScreen({ navigation }: CameraBagListScreenProps) {
           items={cameras}
           keyExtractor={(i) => i.id}
           renderItem={(item) => (
-            <ListItem title={item.name} onPress={() => {}} />
+            <ListItem
+              title={item.name}
+              onPress={() =>
+                navigation.navigate("CameraDetail", { cameraId: item.id })
+              }
+            />
           )}
         />
-        <Button variant="secondary">Add camera</Button>
+        <Button
+          variant="secondary"
+          onPress={() => navigation.navigate("AddCamera")}
+        >
+          Add camera
+        </Button>
       </ContentBlock>
       <ContentBlock>
         <SectionTitle>Lenses</SectionTitle>

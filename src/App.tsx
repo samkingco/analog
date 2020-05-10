@@ -14,12 +14,14 @@ import { AddRollStack } from "./screens/AddRollStack";
 import { AddFrameScreen } from "./screens/AddFrameScreen";
 import { CameraBagStack } from "./screens/CameraBagStack";
 import { AddCameraLensScreen } from "./screens/AddCameraLensScreen";
+import { AddCameraScreen } from "./screens/AddCameraScreen";
 
 export type RootStackParamList = {
   RollsStack: undefined;
   AddRollStack: undefined;
   AddFrame: { rollId: string };
   CameraBagStack: undefined;
+  AddCamera: undefined;
   AddCameraLens: { cameraId?: string };
 };
 
@@ -77,6 +79,21 @@ export const App = () => {
               component={CameraBagStack}
               options={{
                 header: () => null,
+                ...TransitionPresets.ModalPresentationIOS,
+              }}
+            />
+            <Stack.Screen
+              name="AddCamera"
+              component={AddCameraScreen}
+              options={{
+                title: "Add camera",
+                header: (props) => (
+                  <NavigationHeader
+                    isModal={true}
+                    isSingleScreenModal={true}
+                    {...props}
+                  />
+                ),
                 ...TransitionPresets.ModalPresentationIOS,
               }}
             />

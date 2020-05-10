@@ -12,7 +12,11 @@ import { HorizontalScrollPicker } from "../design-system/HorizontalScrollPicker"
 import { makeApertures } from "../util/camera-settings";
 import { Button } from "../design-system/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { cameraBagSelectors, updateLens } from "../store/camera-bag";
+import {
+  cameraBagSelectors,
+  updateCameraLens,
+  deleteCameraLens,
+} from "../store/camera-bag";
 import { stringToNumber } from "../util/string-to-number";
 import { CameraBagStackParamList } from "./CameraBagStack";
 import { Subhead } from "../design-system/Subhead";
@@ -152,7 +156,7 @@ export function CameraLensDetailScreen({
               isDisabled={!canSubmit}
               onPress={() => {
                 dispatch(
-                  updateLens({
+                  updateCameraLens({
                     ...cameraLens,
                     name: localName,
                     minFocalLength: localMinFocalLength,
@@ -165,6 +169,17 @@ export function CameraLensDetailScreen({
               }}
             >
               Save
+            </Button>
+          </ContentBlock>
+          <ContentBlock>
+            <Button
+              variant="danger"
+              onPress={() => {
+                dispatch(deleteCameraLens(cameraLens.id));
+                navigation.popToTop();
+              }}
+            >
+              Delete lens
             </Button>
           </ContentBlock>
           <ScrollViewPadding />

@@ -20,18 +20,24 @@ import {
 } from "../store/camera-bag";
 import { stringToNumber } from "../util/string-to-number";
 
-type AddLensScreenRouteProp = RouteProp<RootStackParamList, "AddCameraLens">;
-type AddLensScreenNavigationProp = StackNavigationProp<
+type AddCameraLensScreenRouteProp = RouteProp<
+  RootStackParamList,
+  "AddCameraLens"
+>;
+type AddCameraLensScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   "AddCameraLens"
 >;
 
-type AddLensScreenProps = {
-  route: AddLensScreenRouteProp;
-  navigation: AddLensScreenNavigationProp;
+type AddCameraLensScreenProps = {
+  route: AddCameraLensScreenRouteProp;
+  navigation: AddCameraLensScreenNavigationProp;
 };
 
-export function AddCameraLensScreen({ route, navigation }: AddLensScreenProps) {
+export function AddCameraLensScreen({
+  route,
+  navigation,
+}: AddCameraLensScreenProps) {
   const { cameraId } = route.params;
   const dispatch = useDispatch();
   const tempCameraLens = useSelector(cameraBagSelectors.tempCameraLens);
